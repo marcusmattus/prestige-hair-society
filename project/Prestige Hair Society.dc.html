@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="" />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  body { margin: 0; background: #FBFAF6; color: #213126; font-family: Manrope, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  * { box-sizing: border-box; }
+  a { color: #213126; text-decoration: none; }
+  a:hover { color: #AF946A; }
+  input, textarea, select, button { font-family: inherit; }
+  ::placeholder { color: #9aa196; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(28px); } to { opacity: 1; transform: none; } }
+  @keyframes veil { from { opacity: 0; } to { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+</style>
+</helmet>
+
+<div style="min-height: 100vh; background: #FBFAF6;">
+
+  <header style="position: sticky; top: 0; z-index: 40; background: rgba(251,250,246,0.92); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(33,49,38,0.16);">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 14px 40px; display: flex; align-items: center; gap: 40px;">
+      <a href="#top" style="display: flex; align-items: center; gap: 12px;">
+        <img src="logo.jpg" alt="Prestige Hair Society" style="width: 76px; height: 76px; object-fit: contain; mix-blend-mode: multiply;" />
+      </a>
+      <nav style="display: flex; align-items: center; gap: 34px; margin-left: auto; font-size: 14px; letter-spacing: 0.02em; color: #213126;">
+        <a href="#services">Services</a>
+        <a href="#salon">Our Salon</a>
+        <a href="#stylists">Stylists</a>
+        <a href="#gallery">Gallery</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <div style="display: flex; align-items: center; gap: 20px;">
+        <a href="#account" style="font-size: 14px; color: #687067;">Sign in</a>
+        <button onClick="{{ openBooking }}" style="background: #213126; color: #F5F0E5; border: 0; border-radius: 4px; padding: 13px 26px; font-size: 14px; letter-spacing: 0.03em; cursor: pointer; min-height: 44px;" style-hover="background: #2c4132;">Book now</button>
+      </div>
+    </div>
+  </header>
+
+  <section id="top" style="background: #F5F0E5; position: relative; overflow: hidden;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 96px 40px 104px; display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center;">
+      <div style="animation: fadeUp 0.7s ease both;">
+        <div style="font-size: 12px; letter-spacing: 0.22em; color: #8F9B7B; text-transform: uppercase; margin-bottom: 28px;">Battersea · London</div>
+        <h1 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 78px; line-height: 1.02; letter-spacing: -0.015em; margin: 0 0 30px;">Hair care,<br />elevated to an art.</h1>
+        <div style="width: 84px; height: 1px; background: #AF946A; margin-bottom: 30px;"></div>
+        <p style="font-size: 17px; line-height: 1.7; color: #687067; max-width: 430px; margin: 0 0 38px; text-wrap: pretty;">A calm, considered salon experience designed around your hair, your routine and how you want to feel.</p>
+        <div style="display: flex; gap: 16px; margin-bottom: 56px;">
+          <button onClick="{{ openBooking }}" style="background: #213126; color: #F5F0E5; border: 0; border-radius: 4px; padding: 17px 34px; font-size: 15px; letter-spacing: 0.03em; cursor: pointer; min-height: 48px;" style-hover="background: #2c4132;">Book an appointment</button>
+          <a href="#services" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 17px 30px; font-size: 15px; color: #213126; display: inline-flex; align-items: center;" style-hover="border-color: #AF946A; color: #213126;">Explore services</a>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px; max-width: 560px;">
+          <div>
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Personal consultations</div>
+            <div style="font-size: 13px; color: #687067; line-height: 1.55;">Every visit begins with a conversation.</div>
+          </div>
+          <div>
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Secure deposits</div>
+            <div style="font-size: 13px; color: #687067; line-height: 1.55;">Card, Apple Pay and Google Pay.</div>
+          </div>
+          <div>
+            <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Instant confirmation</div>
+            <div style="font-size: 13px; color: #687067; line-height: 1.55;">Email and SMS, the moment you book.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: relative; animation: fadeUp 0.9s ease both;">
+        <div style="border: 1px solid #AF946A; border-radius: 260px 260px 8px 8px; padding: 10px;">
+          <div style="border-radius: 250px 250px 4px 4px; height: 560px; background: repeating-linear-gradient(135deg, #EDE7DA 0 12px, #E6DFCE 12px 24px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 34px;">
+            <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.12em; color: #8F9B7B; text-transform: uppercase;">editorial salon photograph</span>
+          </div>
+        </div>
+        <div style="position: absolute; left: -56px; bottom: 64px; width: 300px; background: #FBFAF6; border: 1px solid rgba(33,49,38,0.16); box-shadow: 0 18px 44px rgba(33,49,38,0.10); border-radius: 6px; padding: 22px 24px;">
+          <div style="font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 10px;">Next available</div>
+          <div style="font-family: 'Cormorant Garamond', serif; font-size: 27px; line-height: 1.15;">{{ nextAvailable }}</div>
+          <div style="font-size: 13px; color: #687067; margin-top: 6px;">with a senior stylist</div>
+          <button onClick="{{ openBooking }}" style="margin-top: 16px; background: none; border: 0; padding: 0; color: #53664A; font-size: 13px; letter-spacing: 0.04em; cursor: pointer;" style-hover="color: #AF946A;">View availability →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div style="background: #213126; color: #F5F0E5; overflow: hidden; padding: 20px 0;">
+    <div style="display: flex; width: max-content; animation: marquee 38s linear infinite; font-family: 'Cormorant Garamond', serif; font-size: 24px; font-style: italic; letter-spacing: 0.01em; white-space: nowrap;">
+      <span style="padding-right: 64px;">We are moving beyond the standard salon visit to truly nurture and transform your hair.</span>
+      <span style="padding-right: 64px; color: #AF946A;">·</span>
+      <span style="padding-right: 64px;">We are moving beyond the standard salon visit to truly nurture and transform your hair.</span>
+      <span style="padding-right: 64px; color: #AF946A;">·</span>
+      <span style="padding-right: 64px;">We are moving beyond the standard salon visit to truly nurture and transform your hair.</span>
+      <span style="padding-right: 64px; color: #AF946A;">·</span>
+      <span style="padding-right: 64px;">We are moving beyond the standard salon visit to truly nurture and transform your hair.</span>
+      <span style="padding-right: 64px; color: #AF946A;">·</span>
+    </div>
+  </div>
+
+  <section id="services" style="max-width: 1280px; margin: 0 auto; padding: 108px 40px;">
+    <div style="text-align: center; margin-bottom: 60px;">
+      <div style="font-size: 12px; letter-spacing: 0.22em; color: #8F9B7B; text-transform: uppercase; margin-bottom: 18px;">The catalogue</div>
+      <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 52px; margin: 0 0 14px;">Made for your hair.</h2>
+      <p style="font-size: 15px; color: #687067; margin: 0;">Placeholder pricing until the verified catalogue is imported.</p>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px;">
+      <article style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; background: #FBFAF6; padding: 30px 26px 26px; display: flex; flex-direction: column; gap: 12px;" style-hover="border-color: #AF946A;">
+        <div style="width: 8px; height: 8px; background: #AF946A; transform: rotate(45deg); margin-bottom: 6px;"></div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 0;">Consultation</h3>
+        <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0; flex: 1;">Personalised advice to understand your hair goals and build a plan.</p>
+        <div style="font-size: 13px; color: #53664A; letter-spacing: 0.04em;">30 min · from £45</div>
+        <a href="#services" style="font-size: 13px; letter-spacing: 0.04em; color: #213126; margin-top: 6px;">Learn more →</a>
+      </article>
+      <article style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; background: #FBFAF6; padding: 30px 26px 26px; display: flex; flex-direction: column; gap: 12px;" style-hover="border-color: #AF946A;">
+        <div style="width: 8px; height: 8px; background: #AF946A; transform: rotate(45deg); margin-bottom: 6px;"></div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 0;">Wash, Cut &amp; Finish</h3>
+        <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0; flex: 1;">Expert cutting with a restorative wash and a flawless finish.</p>
+        <div style="font-size: 13px; color: #53664A; letter-spacing: 0.04em;">90 min · from £75</div>
+        <a href="#services" style="font-size: 13px; letter-spacing: 0.04em; color: #213126; margin-top: 6px;">Learn more →</a>
+      </article>
+      <article style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; background: #FBFAF6; padding: 30px 26px 26px; display: flex; flex-direction: column; gap: 12px;" style-hover="border-color: #AF946A;">
+        <div style="width: 8px; height: 8px; background: #AF946A; transform: rotate(45deg); margin-bottom: 6px;"></div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 0;">Silk Press</h3>
+        <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0; flex: 1;">Smooth, shining, beautifully polished results without compromise.</p>
+        <div style="font-size: 13px; color: #53664A; letter-spacing: 0.04em;">90 min · from £85</div>
+        <a href="#services" style="font-size: 13px; letter-spacing: 0.04em; color: #213126; margin-top: 6px;">Learn more →</a>
+      </article>
+      <article style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; background: #FBFAF6; padding: 30px 26px 26px; display: flex; flex-direction: column; gap: 12px;" style-hover="border-color: #AF946A;">
+        <div style="width: 8px; height: 8px; background: #AF946A; transform: rotate(45deg); margin-bottom: 6px;"></div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 0;">Colour Services</h3>
+        <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0; flex: 1;">Bespoke colour that enhances your style and complements your tone.</p>
+        <div style="font-size: 13px; color: #53664A; letter-spacing: 0.04em;">Consultation required · from £150</div>
+        <a href="#services" style="font-size: 13px; letter-spacing: 0.04em; color: #213126; margin-top: 6px;">Learn more →</a>
+      </article>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 22px; margin-top: 22px;">
+      <div style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; font-size: 14px;"><span>Protective Styling</span><span style="color: #687067;">from £120</span></div>
+      <div style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; font-size: 14px;"><span>Hair Treatments</span><span style="color: #687067;">from £55</span></div>
+      <div style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; font-size: 14px;"><span>Extensions</span><span style="color: #687067;">from £220</span></div>
+      <div style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; padding: 22px 26px; display: flex; justify-content: space-between; align-items: center; font-size: 14px;"><span>Event Styling</span><span style="color: #687067;">from £90</span></div>
+    </div>
+  </section>
+
+  <section id="salon" style="background: #F5F0E5;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 104px 40px; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 80px; align-items: center;">
+      <div style="border-radius: 220px 220px 6px 6px; height: 520px; background: repeating-linear-gradient(135deg, #EDE7DA 0 12px, #E6DFCE 12px 24px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 30px;">
+        <span style="font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; letter-spacing: 0.12em; color: #8F9B7B; text-transform: uppercase;">salon interior</span>
+      </div>
+      <div>
+        <div style="font-size: 12px; letter-spacing: 0.22em; color: #8F9B7B; text-transform: uppercase; margin-bottom: 20px;">Our philosophy</div>
+        <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 46px; line-height: 1.12; margin: 0 0 24px;">Healthy hair is the only luxury worth chasing.</h2>
+        <p style="font-size: 16px; line-height: 1.75; color: #687067; max-width: 520px; margin: 0 0 20px;">Prestige Hair Society was built around a simple idea: a salon should give more back to your hair than it takes. Every appointment starts with an honest assessment, and every service is chosen for the condition of your hair rather than a trend.</p>
+        <p style="font-size: 16px; line-height: 1.75; color: #687067; max-width: 520px; margin: 0 0 34px;">Botanical products, unhurried appointments and aftercare you can actually follow at home.</p>
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; border-top: 1px solid rgba(33,49,38,0.16); padding-top: 28px; max-width: 560px;">
+          <div><div style="font-family: 'Cormorant Garamond', serif; font-size: 36px;">12</div><div style="font-size: 13px; color: #687067; margin-top: 4px;">Years in Battersea</div></div>
+          <div><div style="font-family: 'Cormorant Garamond', serif; font-size: 36px;">6</div><div style="font-size: 13px; color: #687067; margin-top: 4px;">Specialist stylists</div></div>
+          <div><div style="font-family: 'Cormorant Garamond', serif; font-size: 36px;">4.9</div><div style="font-size: 13px; color: #687067; margin-top: 4px;">Average rating</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width: 1280px; margin: 0 auto; padding: 104px 40px;">
+    <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 46px; margin: 0 0 52px; text-align: center;">Booking, in three steps.</h2>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;">
+      <div style="border-top: 1px solid #AF946A; padding-top: 26px;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 15px; letter-spacing: 0.2em; color: #AF946A; margin-bottom: 16px;">01</div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; margin: 0 0 12px;">Choose your service</h3>
+        <p style="font-size: 15px; line-height: 1.7; color: #687067; margin: 0;">Browse the catalogue with real durations, starting prices and preparation notes before you commit.</p>
+      </div>
+      <div style="border-top: 1px solid #AF946A; padding-top: 26px;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 15px; letter-spacing: 0.2em; color: #AF946A; margin-bottom: 16px;">02</div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; margin: 0 0 12px;">Pick a stylist and time</h3>
+        <p style="font-size: 15px; line-height: 1.7; color: #687067; margin: 0;">Live availability from staff schedules, breaks and buffers. Your slot is held for ten minutes.</p>
+      </div>
+      <div style="border-top: 1px solid #AF946A; padding-top: 26px;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 15px; letter-spacing: 0.2em; color: #AF946A; margin-bottom: 16px;">03</div>
+        <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 28px; margin: 0 0 12px;">Secure with a deposit</h3>
+        <p style="font-size: 15px; line-height: 1.7; color: #687067; margin: 0;">Pay by card, Apple Pay or Google Pay. Confirmation arrives by email and SMS immediately.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="stylists" style="background: #F5F0E5;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 104px 40px;">
+      <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 48px;">
+        <div>
+          <div style="font-size: 12px; letter-spacing: 0.22em; color: #8F9B7B; text-transform: uppercase; margin-bottom: 16px;">The team</div>
+          <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 46px; margin: 0;">Stylists who specialise.</h2>
+        </div>
+        <a href="#stylists" style="font-size: 14px; color: #53664A;">All stylists →</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 26px;">
+        <article>
+          <div style="border-radius: 180px 180px 6px 6px; height: 400px; background: repeating-linear-gradient(135deg, #E8E1D2 0 12px, #E0D8C6 12px 24px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 26px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.12em; color: #8F9B7B; text-transform: uppercase;">stylist portrait</span></div>
+          <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 22px 0 6px;">Stylist name</h3>
+          <div style="font-size: 13px; letter-spacing: 0.06em; color: #AF946A; text-transform: uppercase; margin-bottom: 10px;">Senior stylist</div>
+          <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0;">Silk press, precision cutting and textured hair care.</p>
+        </article>
+        <article>
+          <div style="border-radius: 180px 180px 6px 6px; height: 400px; background: repeating-linear-gradient(135deg, #E8E1D2 0 12px, #E0D8C6 12px 24px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 26px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.12em; color: #8F9B7B; text-transform: uppercase;">stylist portrait</span></div>
+          <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 22px 0 6px;">Stylist name</h3>
+          <div style="font-size: 13px; letter-spacing: 0.06em; color: #AF946A; text-transform: uppercase; margin-bottom: 10px;">Colour specialist</div>
+          <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0;">Balayage, grey blending and colour correction.</p>
+        </article>
+        <article>
+          <div style="border-radius: 180px 180px 6px 6px; height: 400px; background: repeating-linear-gradient(135deg, #E8E1D2 0 12px, #E0D8C6 12px 24px); display: flex; align-items: flex-end; justify-content: center; padding-bottom: 26px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 11px; letter-spacing: 0.12em; color: #8F9B7B; text-transform: uppercase;">stylist portrait</span></div>
+          <h3 style="font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 26px; margin: 22px 0 6px;">Stylist name</h3>
+          <div style="font-size: 13px; letter-spacing: 0.06em; color: #AF946A; text-transform: uppercase; margin-bottom: 10px;">Protective styling</div>
+          <p style="font-size: 14px; line-height: 1.65; color: #687067; margin: 0;">Braiding, extensions and long-term scalp health.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery" style="max-width: 1280px; margin: 0 auto; padding: 104px 40px;">
+    <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 46px; margin: 0 0 12px; text-align: center;">Before and after.</h2>
+    <p style="text-align: center; font-size: 15px; color: #687067; margin: 0 0 48px;">Published only with written client consent.</p>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px;">
+      <div style="aspect-ratio: 3/4; border-radius: 6px; background: repeating-linear-gradient(135deg, #EDE7DA 0 12px, #E6DFCE 12px 24px); display: flex; align-items: flex-end; padding: 18px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: 0.1em; color: #8F9B7B; text-transform: uppercase;">before · silk press</span></div>
+      <div style="aspect-ratio: 3/4; border-radius: 6px; background: repeating-linear-gradient(135deg, #E8E1D2 0 12px, #E0D8C6 12px 24px); display: flex; align-items: flex-end; padding: 18px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: 0.1em; color: #8F9B7B; text-transform: uppercase;">after · silk press</span></div>
+      <div style="aspect-ratio: 3/4; border-radius: 6px; background: repeating-linear-gradient(135deg, #EDE7DA 0 12px, #E6DFCE 12px 24px); display: flex; align-items: flex-end; padding: 18px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: 0.1em; color: #8F9B7B; text-transform: uppercase;">before · colour</span></div>
+      <div style="aspect-ratio: 3/4; border-radius: 6px; background: repeating-linear-gradient(135deg, #E8E1D2 0 12px, #E0D8C6 12px 24px); display: flex; align-items: flex-end; padding: 18px;"><span style="font-family: ui-monospace, Menlo, monospace; font-size: 10px; letter-spacing: 0.1em; color: #8F9B7B; text-transform: uppercase;">after · colour</span></div>
+    </div>
+  </section>
+
+  <section style="background: #213126; color: #F5F0E5;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 104px 40px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 48px;">
+      <blockquote style="margin: 0;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.45; font-style: italic; margin-bottom: 22px;">“The first salon that told me what my hair actually needed rather than what they wanted to sell me.”</div>
+        <div style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #AF946A;">Client testimonial</div>
+      </blockquote>
+      <blockquote style="margin: 0;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.45; font-style: italic; margin-bottom: 22px;">“Booking took under a minute and the confirmation arrived before I had put my phone down.”</div>
+        <div style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #AF946A;">Client testimonial</div>
+      </blockquote>
+      <blockquote style="margin: 0;">
+        <div style="font-family: 'Cormorant Garamond', serif; font-size: 25px; line-height: 1.45; font-style: italic; margin-bottom: 22px;">“Six months of consistent treatments and my hair has never been in better condition.”</div>
+        <div style="font-size: 13px; letter-spacing: 0.1em; text-transform: uppercase; color: #AF946A;">Client testimonial</div>
+      </blockquote>
+    </div>
+  </section>
+
+  <section id="contact" style="background: #F5F0E5;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 104px 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 80px;">
+      <div>
+        <div style="font-size: 12px; letter-spacing: 0.22em; color: #8F9B7B; text-transform: uppercase; margin-bottom: 20px;">Visit us</div>
+        <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 46px; margin: 0 0 26px;">2 Queens Road,<br />Battersea, London</h2>
+        <p style="font-size: 15px; line-height: 1.7; color: #687067; max-width: 420px; margin: 0 0 30px;">A short walk from Clapham Junction. Please arrive with dry, detangled hair unless your service notes say otherwise.</p>
+        <a href="#contact" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 15px 28px; font-size: 14px; display: inline-block;" style-hover="border-color: #AF946A;">Get directions →</a>
+      </div>
+      <div style="border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; background: #FBFAF6; padding: 34px 36px;">
+        <div style="font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 22px;">Opening hours</div>
+        <div style="display: grid; gap: 14px; font-size: 15px;">
+          <div style="display: flex; justify-content: space-between;"><span>Tuesday – Wednesday</span><span style="color: #687067;">10:00 – 18:00</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Thursday – Friday</span><span style="color: #687067;">10:00 – 20:00</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Saturday</span><span style="color: #687067;">09:00 – 18:00</span></div>
+          <div style="display: flex; justify-content: space-between;"><span>Sunday – Monday</span><span style="color: #687067;">Closed</span></div>
+        </div>
+        <div style="border-top: 1px solid rgba(33,49,38,0.16); margin-top: 24px; padding-top: 20px; font-size: 13px; color: #687067; line-height: 1.6;">Hours shown are placeholders pending verification against the salon's live schedule.</div>
+      </div>
+    </div>
+  </section>
+
+  <section style="max-width: 1280px; margin: 0 auto; padding: 120px 40px; text-align: center;">
+    <h2 style="font-family: 'Cormorant Garamond', serif; font-weight: 300; font-size: 62px; line-height: 1.1; margin: 0 0 24px;">Your appointment is<br />two minutes away.</h2>
+    <p style="font-size: 16px; color: #687067; margin: 0 0 36px;">Live availability, a held slot and instant confirmation.</p>
+    <button onClick="{{ openBooking }}" style="background: #213126; color: #F5F0E5; border: 0; border-radius: 4px; padding: 18px 42px; font-size: 15px; letter-spacing: 0.03em; cursor: pointer; min-height: 48px;" style-hover="background: #2c4132;">Book an appointment</button>
+  </section>
+
+  <footer style="border-top: 1px solid rgba(33,49,38,0.16); background: #FBFAF6;">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 60px 40px 40px; display: grid; grid-template-columns: 1.4fr 1fr 1fr 1fr; gap: 40px;">
+      <div>
+        <img src="logo.jpg" alt="Prestige Hair Society" style="width: 96px; height: 96px; object-fit: contain; mix-blend-mode: multiply;" />
+        <p style="font-size: 13px; line-height: 1.65; color: #687067; max-width: 260px; margin: 14px 0 0;">2 Queens Road, Battersea, London</p>
+      </div>
+      <div style="display: grid; gap: 12px; align-content: start; font-size: 14px;">
+        <div style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 4px;">Visit</div>
+        <a href="#services">Services</a><a href="#stylists">Stylists</a><a href="#gallery">Gallery</a><a href="#contact">Contact</a>
+      </div>
+      <div style="display: grid; gap: 12px; align-content: start; font-size: 14px;">
+        <div style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 4px;">Account</div>
+        <a href="#account">Sign in</a><a href="#account">My bookings</a><a href="#account">Preferences</a>
+      </div>
+      <div style="display: grid; gap: 12px; align-content: start; font-size: 14px;">
+        <div style="font-size: 12px; letter-spacing: 0.16em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 4px;">Legal</div>
+        <a href="#policies">Cancellation policy</a><a href="#privacy">Privacy</a><a href="#terms">Terms</a>
+      </div>
+    </div>
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 40px 40px; font-size: 12px; color: #687067;">© 2026 Prestige Hair Society. Prices and hours shown are placeholders.</div>
+  </footer>
+
+  <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: fixed; inset: 0; z-index: 60; display: flex; justify-content: flex-end;">
+      <div onClick="{{ closeBooking }}" style="position: absolute; inset: 0; background: rgba(33,49,38,0.34); animation: veil 0.25s ease both;"></div>
+      <aside style="position: relative; width: 480px; max-width: 100%; height: 100%; background: #FBFAF6; box-shadow: -24px 0 60px rgba(33,49,38,0.18); overflow-y: auto; animation: slideIn 0.3s cubic-bezier(0.22,1,0.36,1) both;">
+        <div style="position: sticky; top: 0; background: #FBFAF6; padding: 22px 30px 18px; border-bottom: 1px solid rgba(33,49,38,0.16); z-index: 2;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <button onClick="{{ back }}" style="background: none; border: 0; font-size: 18px; color: #687067; cursor: pointer; width: 32px; height: 32px;" style-hover="color: #213126;">←</button>
+            <div style="font-family: 'Cormorant Garamond', serif; font-size: 24px;">Your appointment</div>
+            <button onClick="{{ closeBooking }}" style="background: none; border: 0; font-size: 18px; color: #687067; cursor: pointer; width: 32px; height: 32px;" style-hover="color: #213126;">✕</button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 20px;">
+            <div style="text-align: center;"><div style="height: 2px; border-radius: 2px; background: {{ bar1 }};"></div><div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: {{ label1 }}; margin-top: 8px;">Service</div></div>
+            <div style="text-align: center;"><div style="height: 2px; border-radius: 2px; background: {{ bar2 }};"></div><div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: {{ label2 }}; margin-top: 8px;">Date &amp; time</div></div>
+            <div style="text-align: center;"><div style="height: 2px; border-radius: 2px; background: {{ bar3 }};"></div><div style="font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: {{ label3 }}; margin-top: 8px;">Details</div></div>
+          </div>
+        </div>
+
+        <div style="padding: 26px 30px 40px;">
+          <sc-if value="{{ isStep1 }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 16px;">Choose a service</div>
+              <div style="display: grid; gap: 10px;">
+                <sc-for list="{{ services }}" as="s" hint-placeholder-count="4">
+                  <button onClick="{{ s.select }}" style="{{ s.style }}">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px;">
+                      <span style="font-family: 'Cormorant Garamond', serif; font-size: 21px;">{{ s.name }}</span>
+                      <span style="font-size: 13px; color: #53664A;">{{ s.price }}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #687067; margin-top: 6px;">{{ s.meta }}</div>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #8F9B7B; margin: 28px 0 14px;">Stylist</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <sc-for list="{{ stylists }}" as="st" hint-placeholder-count="2">
+                  <button onClick="{{ st.select }}" style="{{ st.style }}">{{ st.name }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isStep2 }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 16px;">Choose a date</div>
+              <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px;">
+                <sc-for list="{{ dates }}" as="d" hint-placeholder-count="5">
+                  <button onClick="{{ d.select }}" style="{{ d.style }}">
+                    <div style="font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; opacity: 0.7;">{{ d.dow }}</div>
+                    <div style="font-size: 14px; margin-top: 4px;">{{ d.day }}</div>
+                  </button>
+                </sc-for>
+              </div>
+              <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #8F9B7B; margin: 28px 0 14px;">Choose a time</div>
+              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;">
+                <sc-for list="{{ times }}" as="t" hint-placeholder-count="8">
+                  <button onClick="{{ t.select }}" style="{{ t.style }}">{{ t.label }}</button>
+                </sc-for>
+              </div>
+              <div style="margin-top: 24px; border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; padding: 16px 18px; background: #F5F0E5; font-size: 13px; color: #687067; line-height: 1.6;">Times are shown in Europe/London. Your slot is held for 10 minutes once you continue.</div>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isStep3 }}" hint-placeholder-val="{{ false }}">
+            <div>
+              <div style="font-size: 13px; letter-spacing: 0.12em; text-transform: uppercase; color: #8F9B7B; margin-bottom: 16px;">Your details</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                <input value="{{ first }}" onChange="{{ onFirst }}" placeholder="First name" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 13px 14px; font-size: 14px; background: #fff; color: #213126; min-height: 46px;" />
+                <input value="{{ last }}" onChange="{{ onLast }}" placeholder="Last name" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 13px 14px; font-size: 14px; background: #fff; color: #213126; min-height: 46px;" />
+              </div>
+              <div style="display: grid; gap: 12px; margin-top: 12px;">
+                <input value="{{ email }}" onChange="{{ onEmail }}" placeholder="Email address" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 13px 14px; font-size: 14px; background: #fff; color: #213126; min-height: 46px;" />
+                <input value="{{ phone }}" onChange="{{ onPhone }}" placeholder="Mobile number" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 13px 14px; font-size: 14px; background: #fff; color: #213126; min-height: 46px;" />
+                <textarea value="{{ notes }}" onChange="{{ onNotes }}" placeholder="Hair goals or anything we should know" rows="3" style="border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 13px 14px; font-size: 14px; background: #fff; color: #213126; resize: vertical;"></textarea>
+              </div>
+              <label style="display: flex; gap: 10px; align-items: flex-start; margin-top: 18px; font-size: 13px; color: #687067; line-height: 1.55; cursor: pointer;">
+                <input type="checkbox" checked="{{ agreed }}" onChange="{{ onAgree }}" style="margin-top: 2px; accent-color: #213126; width: 16px; height: 16px;" />
+                <span>I accept the cancellation policy and understand the deposit is non-refundable within 24 hours of the appointment.</span>
+              </label>
+            </div>
+          </sc-if>
+
+          <sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+            <div style="text-align: center; padding: 20px 0 10px;">
+              <div style="width: 12px; height: 12px; background: #AF946A; transform: rotate(45deg); margin: 0 auto 24px;"></div>
+              <div style="font-family: 'Cormorant Garamond', serif; font-size: 34px; margin-bottom: 10px;">Appointment confirmed</div>
+              <div style="font-size: 14px; color: #687067; margin-bottom: 28px;">Confirmation {{ reference }} sent by email and SMS.</div>
+              <div style="text-align: left; border: 1px solid rgba(33,49,38,0.16); border-radius: 6px; padding: 20px 22px; display: grid; gap: 12px; font-size: 14px;">
+                <div style="display: flex; justify-content: space-between;"><span style="color: #687067;">Service</span><span>{{ summaryService }}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #687067;">Stylist</span><span>{{ summaryStylist }}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #687067;">When</span><span>{{ summaryWhen }}</span></div>
+                <div style="display: flex; justify-content: space-between;"><span style="color: #687067;">Deposit paid</span><span>{{ summaryDeposit }}</span></div>
+                <div style="display: flex; justify-content: space-between; border-top: 1px solid rgba(33,49,38,0.16); padding-top: 12px;"><span style="color: #687067;">Balance in salon</span><span>{{ summaryBalance }}</span></div>
+              </div>
+              <button onClick="{{ closeBooking }}" style="margin-top: 24px; background: none; border: 1px solid rgba(33,49,38,0.16); border-radius: 4px; padding: 14px 26px; font-size: 14px; cursor: pointer; min-height: 46px;" style-hover="border-color: #AF946A;">Add to calendar</button>
+            </div>
+          </sc-if>
+        </div>
+
+        <sc-if value="{{ showFooter }}" hint-placeholder-val="{{ true }}">
+          <div style="position: sticky; bottom: 0; background: #FBFAF6; border-top: 1px solid rgba(33,49,38,0.16); padding: 18px 30px 22px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #687067; margin-bottom: 14px;">
+              <span>{{ summaryLine }}</span>
+              <span style="color: #213126;">{{ summaryPrice }}</span>
+            </div>
+            <button onClick="{{ next }}" style="{{ ctaStyle }}">{{ ctaLabel }}</button>
+            <div style="text-align: center; font-size: 12px; color: #687067; margin-top: 10px;">{{ ctaHint }}</div>
+          </div>
+        </sc-if>
+      </aside>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 1000}}">
+const SERVICES = [
+  { id: 'consult', name: 'Consultation', mins: 30, price: 45, deposit: 20, from: false },
+  { id: 'wcf', name: 'Wash, Cut & Finish', mins: 90, price: 75, deposit: 25, from: false },
+  { id: 'silk', name: 'Silk Press', mins: 90, price: 85, deposit: 30, from: false },
+  { id: 'colour', name: 'Colour Services', mins: 180, price: 150, deposit: 50, from: true },
+  { id: 'protective', name: 'Protective Styling', mins: 150, price: 120, deposit: 40, from: true },
+  { id: 'treatment', name: 'Hair Treatments', mins: 45, price: 55, deposit: 20, from: false }
+];
+const STYLISTS = ['Any available stylist', 'Senior stylist', 'Colour specialist', 'Protective styling'];
+const TIMES = ['09:00', '10:00', '11:30', '13:00', '14:30', '16:00', '17:30', '18:30'];
+const BORDER = '1px solid rgba(33,49,38,0.16)';
+
+class Component extends DCLogic {
+  state = { open: false, step: 1, serviceId: 'silk', stylist: 'Any available stylist', dateIdx: 1, time: '10:00', first: '', last: '', email: '', phone: '', notes: '', agreed: false };
+
+  dates() {
+    const out = [];
+    const base = new Date();
+    for (let i = 0; i < 10; i++) {
+      const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + i);
+      out.push(d);
+    }
+    return out;
+  }
+
+  chip(active, extra) {
+    return 'border-radius:4px;padding:12px 8px;font-size:13px;cursor:pointer;text-align:center;min-height:46px;transition:border-color .15s,background .15s;' +
+      (active
+        ? 'background:#213126;color:#F5F0E5;border:1px solid #213126;'
+        : 'background:#FBFAF6;color:#213126;border:' + BORDER + ';') + (extra || '');
+  }
+
+  renderVals() {
+    const s = this.state;
+    const svc = SERVICES.find(x => x.id === s.serviceId) || SERVICES[0];
+    const dates = this.dates();
+    const sel = dates[s.dateIdx];
+    const dfmt = new Intl.DateTimeFormat('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+    const nextD = dates[1];
+    const barOn = '#213126', barOff = 'rgba(33,49,38,0.16)';
+    const set = (k, v) => () => this.setState({ [k]: v });
+    const onText = k => e => this.setState({ [k]: e.target.value });
+
+    return {
+      drawerOpen: s.open,
+      openBooking: () => this.setState({ open: true, step: 1 }),
+      closeBooking: () => this.setState({ open: false, step: 1 }),
+      back: () => this.setState({ step: Math.max(1, s.step - 1) }),
+      next: () => this.setState({ step: Math.min(4, s.step + 1) }),
+
+      isStep1: s.step === 1, isStep2: s.step === 2, isStep3: s.step === 3, isDone: s.step === 4,
+      showFooter: s.step < 4,
+      bar1: barOn, bar2: s.step >= 2 ? barOn : barOff, bar3: s.step >= 3 ? barOn : barOff,
+      label1: '#213126', label2: s.step >= 2 ? '#213126' : '#8F9B7B', label3: s.step >= 3 ? '#213126' : '#8F9B7B',
+
+      nextAvailable: 'Tomorrow at 10:00',
+
+      services: SERVICES.map(x => ({
+        name: x.name,
+        price: (x.from ? 'from £' : '£') + x.price,
+        meta: x.mins + ' min · £' + x.deposit + ' deposit',
+        select: set('serviceId', x.id),
+        style: 'text-align:left;width:100%;padding:16px 18px;border-radius:6px;cursor:pointer;transition:border-color .15s;' +
+          (x.id === s.serviceId
+            ? 'background:#F5F0E5;border:1px solid #213126;'
+            : 'background:#FBFAF6;border:' + BORDER + ';')
+      })),
+
+      stylists: STYLISTS.map(n => ({ name: n, select: set('stylist', n), style: this.chip(n === s.stylist) })),
+
+      dates: dates.slice(0, 10).map((d, i) => ({
+        dow: i === 0 ? 'Today' : new Intl.DateTimeFormat('en-GB', { weekday: 'short' }).format(d),
+        day: new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short' }).format(d),
+        select: set('dateIdx', i),
+        style: this.chip(i === s.dateIdx, 'padding:10px 4px;')
+      })),
+
+      times: TIMES.map(t => ({ label: t, select: set('time', t), style: this.chip(t === s.time) })),
+
+      first: s.first, last: s.last, email: s.email, phone: s.phone, notes: s.notes, agreed: s.agreed,
+      onFirst: onText('first'), onLast: onText('last'), onEmail: onText('email'), onPhone: onText('phone'), onNotes: onText('notes'),
+      onAgree: e => this.setState({ agreed: e.target.checked }),
+
+      summaryLine: svc.name + ' · ' + dfmt.format(sel) + ' · ' + s.time,
+      summaryPrice: (svc.from ? 'from £' : '£') + svc.price,
+      summaryService: svc.name,
+      summaryStylist: s.stylist,
+      summaryWhen: dfmt.format(sel) + ' at ' + s.time,
+      summaryDeposit: '£' + svc.deposit,
+      summaryBalance: '£' + (svc.price - svc.deposit) + (svc.from ? ' onwards' : ''),
+      reference: 'PHS-' + String(1000 + s.dateIdx * 7 + TIMES.indexOf(s.time)),
+
+      ctaLabel: s.step === 3 ? 'Pay £' + svc.deposit + ' deposit' : 'Continue',
+      ctaHint: s.step === 1 ? 'Live availability on the next step.' : s.step === 2 ? 'We will hold this slot for 10 minutes.' : 'Secured by Stripe. Card, Apple Pay and Google Pay.',
+      ctaStyle: 'width:100%;border:0;border-radius:4px;padding:16px;font-size:15px;letter-spacing:.03em;cursor:pointer;min-height:50px;background:#213126;color:#F5F0E5;'
+    };
+  }
+}
+</script>
+</body>
+</html>
