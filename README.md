@@ -1,25 +1,72 @@
-# CODING AGENTS: READ THIS FIRST
+# Prestige Hair Society
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Front-end for the Prestige Hair Society salon site — a marketing homepage plus a
+three-step booking drawer, built from the Claude Design handoff in `project/`.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4.
 
-## What you should do — IMPORTANT
+## Getting started
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+```bash
+npm install
+npm run dev      # http://localhost:3000
+npm run build    # production build
+npm run lint
+```
 
-**Read `project/Prestige Hair Society.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+## Layout
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+```
+src/app/
+  layout.tsx              Fonts (Cormorant Garamond + Manrope), metadata
+  globals.css             Palette tokens, keyframes, stripe placeholders
+  page.tsx                Composes the homepage inside <BookingProvider>
+src/components/
+  BookNowButton.tsx       CTAs that open the booking drawer
+  booking/
+    BookingProvider.tsx   Booking state + context (client)
+    BookingDrawer.tsx     The drawer itself (client)
+  sections/               One component per homepage section
+src/lib/booking.ts        Service catalogue, stylists, time slots, formatters
+```
 
-## About the design files
+## Design tokens
 
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
+Taken verbatim from the design file and exposed as Tailwind theme colours:
 
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
+| Token      | Value                   | Used for                        |
+| ---------- | ----------------------- | ------------------------------- |
+| `ink`      | `#213126`               | Text, dark sections, primary CTA |
+| `cream`    | `#FBFAF6`               | Page background                 |
+| `sand`     | `#F5F0E5`               | Alternating section background  |
+| `gold`     | `#AF946A`               | Accents, hover, rules           |
+| `sage`     | `#8F9B7B`               | Eyebrow labels                  |
+| `muted`    | `#687067`               | Body copy                       |
+| `moss`     | `#53664A`               | Prices, quiet links             |
+| `line`     | `rgba(33,49,38,0.16)`   | Borders                         |
 
-## Bundle contents
+## Booking flow
 
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Front end booking interface` project files (HTML prototypes, assets, components)
+`BookingProvider` holds all booking state; the drawer mounts only while open.
+Steps: **1** service + stylist → **2** date + time → **3** details →
+**4** confirmation. Selections persist between openings; the step resets.
+
+State is local only — there is no backend. To make it real, replace:
+
+- `src/lib/booking.ts` — the placeholder catalogue and prices
+- `upcomingDates()` / `TIMES` — with live availability from staff schedules
+- the step 3 "Pay deposit" action — with a Stripe payment intent
+- `bookingReference()` — with the reference returned by the booking API
+- "Add to calendar" on step 4 — currently just closes the drawer
+
+## Placeholders
+
+Photography is rendered as striped blocks (`stripe-warm` / `stripe-deep` in
+`globals.css`), stylists are unnamed, and prices and opening hours are
+placeholders pending the verified salon data — all as flagged in the design.
+
+## Design source
+
+`project/Prestige Hair Society.dc.html` is the original Claude Design prototype
+and `chats/` holds the design conversation. Both are kept for reference; they
+are not part of the build (`project/` is excluded from linting).
