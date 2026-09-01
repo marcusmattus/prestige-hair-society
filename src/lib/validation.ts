@@ -261,6 +261,12 @@ export const salonSettingsSchema = z.object({
   allowFullPayment: z.boolean(),
 });
 
-export type CustomerDetails = z.infer<typeof customerDetailsSchema>;
+/**
+ * `.default()` makes a field optional on the way in and guaranteed on the way
+ * out, so forms need both sides: react-hook-form validates the input shape and
+ * hands the resolved output to onSubmit.
+ */
+export type CustomerDetailsInput = z.input<typeof customerDetailsSchema>;
+export type CustomerDetails = z.output<typeof customerDetailsSchema>;
 export type ServiceForm = z.infer<typeof serviceFormSchema>;
 export type ManualBooking = z.infer<typeof manualBookingSchema>;

@@ -88,6 +88,44 @@ async function main() {
     order by c.relname, a.attnum
   `);
 
+  // Foreign keys. supabase-js uses these to type embedded selects such as
+  // `.select("*, profile:profile_id(email)")`; without them every join
+  // collapses to GenericStringError.
+  const { rows: relationships } = await client.query<{
+    name: string;
+    table: string;
+    columns: string[];
+    referencedRelation: string;
+    referencedColumns: string[];
+    isOneToOne: boolean;
+  }>(`
+    select
+      con.conname as name,
+      cl.relname as "table",
+      array_agg(a.attname::text order by k.ord) as columns,
+      fcl.relname as "referencedRelation",
+      array_agg(fa.attname::text order by k.ord) as "referencedColumns",
+      exists (
+        select 1 from pg_index i
+        where i.indrelid = con.conrelid
+          and i.indisunique
+          and (select array_agg(x order by x) from unnest(i.indkey::int2[]) x)
+              = (select array_agg(x order by x) from unnest(con.conkey) x)
+      ) as "isOneToOne"
+    from pg_constraint con
+    join pg_class cl on cl.oid = con.conrelid
+    join pg_namespace n on n.oid = cl.relnamespace
+    join pg_class fcl on fcl.oid = con.confrelid
+    cross join lateral unnest(con.conkey, con.confkey)
+      with ordinality as k(attnum, fattnum, ord)
+    join pg_attribute a on a.attrelid = con.conrelid and a.attnum = k.attnum
+    join pg_attribute fa on fa.attrelid = con.confrelid and fa.attnum = k.fattnum
+    where con.contype = 'f'
+      and n.nspname = 'public'
+    group by con.conname, cl.relname, fcl.relname, con.conrelid, con.conkey
+    order by cl.relname, con.conname
+  `);
+
   const { rows: functions } = await client.query<{
     name: string;
     args: string;
@@ -158,7 +196,24 @@ async function main() {
     }
     lines.push("        };");
 
-    lines.push("        Relationships: [];");
+    const rels = relationships.filter((r) => r.table === table);
+    if (rels.length === 0) {
+      lines.push("        Relationships: [];");
+    } else {
+      lines.push("        Relationships: [");
+      for (const r of rels) {
+        lines.push("          {");
+        lines.push(`            foreignKeyName: "${r.name}";`);
+        lines.push(`            columns: [${r.columns.map((c) => `"${c}"`).join(", ")}];`);
+        lines.push(`            isOneToOne: ${r.isOneToOne};`);
+        lines.push(`            referencedRelation: "${r.referencedRelation}";`);
+        lines.push(
+          `            referencedColumns: [${r.referencedColumns.map((c) => `"${c}"`).join(", ")}];`,
+        );
+        lines.push("          },");
+      }
+      lines.push("        ];");
+    }
     lines.push("      };");
   }
 
