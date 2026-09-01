@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:types": "tsx scripts/gen-types.ts",
+    "db:reset": "./scripts/db-reset.sh",
+    "db:test": "./scripts/db-test.sh",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
