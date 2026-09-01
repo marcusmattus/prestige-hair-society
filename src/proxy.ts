@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Session refresh and coarse route protection.
+* Session refresh and coarse route protection (Next 16 "proxy", formerly middleware).
  *
  * Supabase access tokens are short-lived. Without a refresh here, a signed-in
  * customer's session would silently lapse mid-journey, so every request passes
@@ -16,7 +16,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 const PROTECTED_PREFIXES = ["/account", "/studio"];
 
-export async function middleware(request: NextRequest) {
+export default async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

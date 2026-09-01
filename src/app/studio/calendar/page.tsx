@@ -90,7 +90,7 @@ export default async function CalendarPage({
   return (
     <DayCalendar
       date={date}
-      view={days === 7 ? "week" : "day"}
+
       timezone={tz}
       staff={staff.data ?? []}
       bookings={bookings.data ?? []}

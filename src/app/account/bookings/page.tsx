@@ -14,13 +14,19 @@ export const dynamic = "force-dynamic";
 
 const ACTIVE = ["pending_payment", "confirmed"];
 
-export default async function BookingsPage() {
-  const user = await requireUser("/account/bookings");
+/**
+ * Load and partition in one place, outside the component.
+ *
+ * "Now" is not a pure value, so reading it during render would make the split
+ * depend on when React happened to re-render. Doing it here also means the
+ * component receives data it can render idempotently.
+ */
+async function loadBookings(userId: string) {
   const supabase = await createClient();
 
   // RLS restricts this to the signed-in customer's own rows; the explicit
   // filter is defence in depth and keeps the query planner honest.
-  const { data: bookings } = await supabase
+  const { data } = await supabase
     .from("bookings")
     .select(
       `id, reference, status, starts_at, ends_at, total_price_pence, deposit_pence,
@@ -30,19 +36,23 @@ export default async function BookingsPage() {
        salon:salon_id(timezone, cancellation_window_hours, reschedule_window_hours,
                       address_line1, city, postcode, google_maps_url)`,
     )
-    .eq("profile_id", user.id)
+    .eq("profile_id", userId)
     .order("starts_at", { ascending: false });
 
-  const rows = bookings ?? [];
+  const rows = data ?? [];
   const now = Date.now();
 
-  const upcoming = rows
-    .filter((b) => ACTIVE.includes(b.status) && Date.parse(b.starts_at) >= now)
-    .sort((a, b) => a.starts_at.localeCompare(b.starts_at));
+  return {
+    upcoming: rows
+      .filter((b) => ACTIVE.includes(b.status) && Date.parse(b.starts_at) >= now)
+      .sort((a, b) => a.starts_at.localeCompare(b.starts_at)),
+    past: rows.filter((b) => !ACTIVE.includes(b.status) || Date.parse(b.starts_at) < now),
+  };
+}
 
-  const past = rows.filter(
-    (b) => !ACTIVE.includes(b.status) || Date.parse(b.starts_at) < now,
-  );
+export default async function BookingsPage() {
+  const user = await requireUser("/account/bookings");
+  const { upcoming, past } = await loadBookings(user.id);
 
   return (
     <div>

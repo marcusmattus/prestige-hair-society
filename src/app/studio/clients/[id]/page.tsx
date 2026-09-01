@@ -66,9 +66,7 @@ export default async function ClientPage({
 
   const rows = bookings ?? [];
   const completed = rows.filter((b) => b.status === "completed");
-  const upcoming = rows.filter(
-    (b) => ["pending_payment", "confirmed"].includes(b.status) && Date.parse(b.starts_at) >= Date.now(),
-  );
+  const upcoming = countUpcoming(rows);
   const totalSpend = (payments ?? []).reduce(
     (sum, p) => sum + p.amount_pence - p.refunded_pence,
     0,
@@ -108,7 +106,7 @@ export default async function ClientPage({
 
       <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-5">
         <Stat label="Visits" value={String(completed.length)} />
-        <Stat label="Upcoming" value={String(upcoming.length)} />
+        <Stat label="Upcoming" value={String(upcoming)} />
         <Stat label="Total spend" value={formatPence(totalSpend)} />
         <Stat label="Outstanding" value={formatPence(outstanding)} />
         <Stat
@@ -198,6 +196,17 @@ export default async function ClientPage({
       </div>
     </div>
   );
+}
+
+/**
+ * "Now" is impure, so the count is taken outside render rather than letting a
+ * re-render silently change what the page says.
+ */
+function countUpcoming(rows: { status: string; starts_at: string }[]): number {
+  const now = Date.now();
+  return rows.filter(
+    (b) => ["pending_payment", "confirmed"].includes(b.status) && Date.parse(b.starts_at) >= now,
+  ).length;
 }
 
 function Stat({ label, value, tone }: { label: string; value: string; tone?: "warn" }) {

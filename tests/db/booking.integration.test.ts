@@ -22,7 +22,6 @@ let available = false;
 let pool: Pool;
 
 // Fixtures resolved from the seed.
-let salonId: string;
 let staffId: string;
 let otherStaffId: string;
 let serviceId: string;
@@ -44,13 +43,11 @@ beforeAll(async () => {
 
   const { rows } = await pool.query(`
     select
-      (select id from public.salons limit 1) as salon_id,
       (select id from public.staff where slug = 'amara-bennett') as staff_id,
       (select id from public.staff where slug = 'rebecca-adeyemi') as other_staff_id,
       (select id from public.services where slug = 'silk-press') as service_id
   `);
 
-  salonId = rows[0].salon_id;
   staffId = rows[0].staff_id;
   otherStaffId = rows[0].other_staff_id;
   serviceId = rows[0].service_id;

@@ -46,7 +46,7 @@ const PX_PER_MINUTE = 1.1;
 
 export function DayCalendar({
   date,
-  view,
+
   timezone,
   staff,
   bookings,
@@ -58,7 +58,7 @@ export function DayCalendar({
   closureReason,
 }: {
   date: string;
-  view: "day" | "week";
+
   timezone: string;
   staff: StaffRow[];
   bookings: BookingRow[];
