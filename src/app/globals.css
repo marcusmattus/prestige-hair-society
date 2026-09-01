@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+@theme {
+  /* Palette — taken verbatim from the design file */
+  --color-ink: #213126;
+  --color-ink-hover: #2c4132;
+  --color-cream: #fbfaf6;
+  --color-sand: #f5f0e5;
+  --color-gold: #af946a;
+  --color-sage: #8f9b7b;
+  --color-muted: #687067;
+  --color-moss: #53664a;
+  --color-line: rgba(33, 49, 38, 0.16);
+
+  --font-sans: var(--font-manrope), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), ui-serif, Georgia, serif;
+
+  --animate-marquee: marquee 38s linear infinite;
+  --animate-fade-up: fadeUp 0.7s ease both;
+  --animate-fade-up-slow: fadeUp 0.9s ease both;
+  --animate-slide-in: slideIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  --animate-veil: veil 0.25s ease both;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(28px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes veil {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--color-cream);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a:hover {
+    color: var(--color-gold);
+  }
+
+  ::placeholder {
+    color: #9aa196;
+  }
+
+  /* Anchor targets clear the sticky header */
+  [id] {
+    scroll-margin-top: 110px;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-gold);
+    outline-offset: 2px;
+  }
+}
+
+/* Striped photography placeholders, per the design */
+@utility stripe-warm {
+  background-image: repeating-linear-gradient(
+    135deg,
+    #ede7da 0 12px,
+    #e6dfce 12px 24px
+  );
+}
+
+@utility stripe-deep {
+  background-image: repeating-linear-gradient(
+    135deg,
+    #e8e1d2 0 12px,
+    #e0d8c6 12px 24px
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+  }
+
+  html {
+    scroll-behavior: auto;
+  }
+}
