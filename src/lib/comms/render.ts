@@ -25,6 +25,10 @@ export function render(template: string, context: TemplateContext): string {
 function resolve(context: TemplateContext, path: string): unknown {
   return path.split(".").reduce<unknown>((acc, key) => {
     if (acc === null || acc === undefined || typeof acc !== "object") return undefined;
+    // Own properties only. Walking the prototype chain would let a template
+    // resolve `constructor` or `__proto__` and print engine internals into a
+    // customer's email.
+    if (!Object.hasOwn(acc, key)) return undefined;
     return (acc as Record<string, unknown>)[key];
   }, context);
 }
