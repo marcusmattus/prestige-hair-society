@@ -73,7 +73,7 @@ rebooking reminder at the service's interval).
 npm run typecheck     # clean
 npm run lint          # clean
 npm run build         # clean
-npm test              # 73 tests
+npm test              # 93 tests
 npm run db:test       # 13 constraint groups + 8 RLS groups against real Postgres
 ```
 
