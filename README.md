@@ -53,9 +53,13 @@ is the sole source of truth for payment.
 reschedule and cancel against the salon's own policy windows; contact
 preferences that separate reminders from marketing.
 
-**Studio** — today's dashboard, a calendar with one column per stylist drawing
-appointments, buffers, breaks and time off to scale, client search, and client
-records with history, spend and internal notes.
+**Studio** — a pipeline board grouping every booking by what it needs next
+(awaiting deposit, in today, confirmed, balance outstanding, settled, lost)
+with each card carrying its own email history; today's dashboard; a calendar
+with one column per stylist drawing appointments, buffers, breaks and time off
+to scale; a searchable bookings browser; client records with history, spend and
+internal notes; a message log showing the exact text sent to each customer; and
+an editable service catalogue.
 
 **Communications** — thirteen editable templates, an idempotent delivery ledger,
 and a reminder ladder (email at 48h, SMS at 24h and 3h, thank-you after,
@@ -94,7 +98,9 @@ Listed here rather than left to be discovered:
 - Drag-and-drop on the calendar (select-and-reschedule works)
 - Remaining public pages: `/stylists`, `/about`, `/gallery`, `/contact`,
   `/policies`, `/privacy`, `/terms`
-- `/studio` sections beyond dashboard, calendar and clients
+- `/studio` sections for stylists, availability, payments, reports and settings
+  (these are deliberately absent from the studio nav rather than left as dead
+  links)
 - Photo upload UI and gift-card redemption at checkout
 - Playwright end-to-end specs
 

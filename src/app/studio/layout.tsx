@@ -9,18 +9,20 @@ import { MANAGER_ROLES, hasRole, requireStaff } from "@/lib/auth/roles";
  * does not confirm it exists. The nav is filtered by role as well, so a
  * stylist never sees a link to a page they would be refused.
  */
+// Only routes that exist. Stylists, availability, payments, reports and
+// settings are still to build; listing them here would hand staff a nav full
+// of 404s. See the "Not built yet" section of the README.
 const NAV = [
   { href: "/studio", label: "Today", managerOnly: false },
+  { href: "/studio/pipeline", label: "Pipeline", managerOnly: false },
   { href: "/studio/calendar", label: "Calendar", managerOnly: false },
   { href: "/studio/bookings", label: "Bookings", managerOnly: false },
   { href: "/studio/clients", label: "Clients", managerOnly: false },
+  // The message log is readable by any staff member -- a stylist may need to
+  // check whether their client was told. Editing templates is manager-only,
+  // and that page guards itself.
+  { href: "/studio/messages", label: "Messages", managerOnly: false },
   { href: "/studio/services", label: "Services", managerOnly: true },
-  { href: "/studio/stylists", label: "Stylists", managerOnly: true },
-  { href: "/studio/availability", label: "Availability", managerOnly: true },
-  { href: "/studio/payments", label: "Payments", managerOnly: true },
-  { href: "/studio/messages", label: "Messages", managerOnly: true },
-  { href: "/studio/reports", label: "Reports", managerOnly: true },
-  { href: "/studio/settings", label: "Settings", managerOnly: true },
 ];
 
 export default async function StudioLayout({
