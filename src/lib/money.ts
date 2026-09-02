@@ -46,6 +46,11 @@ export function balanceDue(
   return Math.max(0, totalPence - depositPaidPence - balancePaidPence);
 }
 
+/** 8500 -> "85.00", for a pounds input field. Inverse of parsePence. */
+export function penceToPoundsInput(pence: number): string {
+  return (pence / 100).toFixed(2);
+}
+
 /** Parse "85", "£85", "85.50" into pence. Returns null if it is not money. */
 export function parsePence(input: string): number | null {
   const cleaned = input.trim().replace(/[£,\s]/g, "");

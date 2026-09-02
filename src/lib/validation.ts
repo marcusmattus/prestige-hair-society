@@ -192,6 +192,13 @@ export const serviceFormSchema = z.object({
   path: ["depositPence"],
 });
 
+export const messageTemplateSchema = z.object({
+  templateId: uuid,
+  subject: z.string().trim().max(200).optional().or(z.literal("")),
+  body: z.string().trim().min(1, "The message cannot be empty").max(8000),
+  isActive: z.boolean().default(true),
+});
+
 export const clientNoteSchema = z.object({
   profileId: uuid,
   bookingId: uuid.optional(),
