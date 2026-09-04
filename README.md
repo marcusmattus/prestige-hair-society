@@ -40,8 +40,11 @@ an appointment.
 ## What is here
 
 **Public site** — homepage built from the Claude Design handoff, service
-catalogue and detail pages, sitemap, robots, `LocalBusiness`/`Service`/
-`BreadcrumbList` schema.
+catalogue and detail pages, stylist profiles with live next-availability,
+salon, gallery, contact, and policy/privacy/terms pages whose figures are read
+from the salon record so they cannot contradict what the booking flow
+enforces. Sitemap, robots, `LocalBusiness`/`HairSalon`/`Service`/`Person`
+schema.
 
 **Booking** — five steps (service and add-ons → stylist → date and time →
 details → deposit), live availability computed from opening hours, rosters,
@@ -65,6 +68,15 @@ an editable service catalogue.
 and a reminder ladder (email at 48h, SMS at 24h and 3h, thank-you after,
 rebooking reminder at the service's interval).
 
+**Waiting list** — join from the booking flow when nothing suits; a
+cancellation triggers a one-hour offer link. The offer never reserves the
+chair, so a walk-in booking the same time is fine and the offer simply lapses.
+
+**Importing from Slick** — upload a services CSV, correct the guessed column
+mapping, read a row-by-row validation report, then apply or roll back.
+Imported services arrive inactive so an unverified price cannot reach the
+public catalogue unreviewed.
+
 **Cron** — hold sweeping, message delivery, waiting-list matching.
 
 ## Verification
@@ -73,8 +85,10 @@ rebooking reminder at the service's interval).
 npm run typecheck     # clean
 npm run lint          # clean
 npm run build         # clean
-npm test              # 93 tests
+npm test              # 141 tests
 npm run db:test       # 13 constraint groups + 8 RLS groups against real Postgres
+npm run db:demo       # local database with fictional people and appointments
+npm run test:e2e      # 24 Playwright specs, desktop and mobile
 ```
 
 `tests/db/booking.integration.test.ts` opens two connections in overlapping
@@ -90,19 +104,24 @@ and the public pages say so. They stay that way until the verified catalogue is
 imported — see [SLICK_MIGRATION.md](docs/SLICK_MIGRATION.md). Photography is
 rendered as striped blocks, as in the original design.
 
+The Playwright specs need a running app with a reachable database, so they are
+not part of `npm test`. They have not been executed in this environment — no
+Supabase project was configured here — and cover the journey up to the payment
+step; the Stripe Payment Element is a cross-origin iframe that belongs in a
+separate credentialled suite, and the webhook path that actually confirms a
+booking is covered by the database integration tests instead.
+
 ## Not built yet
 
 Listed here rather than left to be discovered:
 
-- Slick CSV importer UI (the tables, mapping and rollback contract exist)
 - Drag-and-drop on the calendar (select-and-reschedule works)
-- Remaining public pages: `/stylists`, `/about`, `/gallery`, `/contact`,
-  `/policies`, `/privacy`, `/terms`
-- `/studio` sections for stylists, availability, payments, reports and settings
-  (these are deliberately absent from the studio nav rather than left as dead
-  links)
+- The Slick importer covers services and their categories; staff, customers,
+  appointments and opening hours are still a SQL job
+- `/studio` sections for stylists, availability, payments and reports
+  (deliberately absent from the studio nav rather than left as dead links)
 - Photo upload UI and gift-card redemption at checkout
-- Playwright end-to-end specs
+- Stripe Payment Element driven end to end in CI
 
 ## Design source
 

@@ -13,7 +13,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "db:demo": "./scripts/db-demo.sh"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

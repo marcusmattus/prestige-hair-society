@@ -64,10 +64,16 @@ beforeAll(async () => {
 
 afterAll(async () => {
   if (!available) return;
-  await pool.query("delete from public.bookings where profile_id = any($1)", [
+  // Order matters: payments.booking_id is ON DELETE RESTRICT, deliberately --
+  // a financial record must not disappear with the booking it paid for. The
+  // test therefore clears its own money rows before the bookings.
+  await pool.query("delete from public.payments where profile_id = any($1)", [
     [customerA, customerB],
   ]);
   await pool.query("delete from public.slot_holds where profile_id = any($1)", [
+    [customerA, customerB],
+  ]);
+  await pool.query("delete from public.bookings where profile_id = any($1)", [
     [customerA, customerB],
   ]);
   await pool.end();
