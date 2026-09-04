@@ -1,29 +1,31 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const COLUMNS = [
   {
     heading: "Visit",
     links: [
-      { href: "#services", label: "Services" },
-      { href: "#stylists", label: "Stylists" },
-      { href: "#gallery", label: "Gallery" },
-      { href: "#contact", label: "Contact" },
+      { href: "/services", label: "Services" },
+      { href: "/stylists", label: "Stylists" },
+      { href: "/gallery", label: "Gallery" },
+      { href: "/about", label: "Our Salon" },
+      { href: "/contact", label: "Contact" },
     ],
   },
   {
     heading: "Account",
     links: [
-      { href: "#account", label: "Sign in" },
-      { href: "#account", label: "My bookings" },
-      { href: "#account", label: "Preferences" },
+      { href: "/sign-in", label: "Sign in" },
+      { href: "/account/bookings", label: "My bookings" },
+      { href: "/account/preferences", label: "Preferences" },
     ],
   },
   {
     heading: "Legal",
     links: [
-      { href: "#policies", label: "Cancellation policy" },
-      { href: "#privacy", label: "Privacy" },
-      { href: "#terms", label: "Terms" },
+      { href: "/policies", label: "Cancellation policy" },
+      { href: "/privacy", label: "Privacy" },
+      { href: "/terms", label: "Terms" },
     ],
   },
 ];
@@ -54,9 +56,9 @@ export function SiteFooter() {
               {col.heading}
             </div>
             {col.links.map((link) => (
-              <a key={link.label} href={link.href}>
+              <Link key={link.label} href={link.href}>
                 {link.label}
-              </a>
+              </Link>
             ))}
           </div>
         ))}
