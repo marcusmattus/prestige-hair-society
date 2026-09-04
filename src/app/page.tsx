@@ -1,8 +1,10 @@
 import { BookingProvider } from "@/components/booking/BookingProvider";
+import { Aftercare } from "@/components/sections/Aftercare";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Gallery } from "@/components/sections/Gallery";
 import { Hero } from "@/components/sections/Hero";
 import { HowItWorks } from "@/components/sections/HowItWorks";
+import { Instagram } from "@/components/sections/Instagram";
 import { Marquee } from "@/components/sections/Marquee";
 import { Salon } from "@/components/sections/Salon";
 import { Services } from "@/components/sections/Services";
@@ -26,7 +28,9 @@ export default function Home() {
           <Stylists />
           <Gallery />
           <Testimonials />
+          <Aftercare />
           <Visit />
+          <Instagram />
           <FinalCta />
         </main>
         <SiteFooter />

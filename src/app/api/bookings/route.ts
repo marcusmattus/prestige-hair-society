@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { audit, requestContext } from "@/lib/audit";
 import { enforceRateLimit, fail, fromDatabaseError, ok, parseBody } from "@/lib/api";
 import { getSessionUser } from "@/lib/auth/roles";
+import { resolveCustomer } from "@/lib/customers";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createBookingSchema } from "@/lib/validation";
 
@@ -32,46 +33,15 @@ export async function POST(request: Request) {
   // Resolve the customer: the signed-in user, an existing account with that
   // email, or a new account created for them.
   // -------------------------------------------------------------------------
-  let profileId = existingUser?.id ?? null;
-  let createdAccount = false;
-
-  if (!profileId) {
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("email", details.email)
-      .is("deleted_at", null)
-      .maybeSingle();
-
-    if (existingProfile) {
-      // Booking with a known email must not silently attach to that account
-      // without proof of ownership -- that would let anyone read someone
-      // else's history by booking with their address.
-      return fail(
-        409,
-        "account_exists",
-        "An account already uses that email address. Please sign in to continue booking.",
-      );
-    }
-
-    const { data: created, error: createError } = await supabase.auth.admin.createUser({
-      email: details.email,
-      email_confirm: false,
-      user_metadata: {
-        first_name: details.firstName,
-        last_name: details.lastName,
-        phone: details.phone,
-      },
-    });
-
-    if (createError || !created.user) {
-      console.error("[bookings] account creation failed", createError?.message);
-      return fail(500, "server_error", "We could not set up your account. Please try again.");
-    }
-
-    profileId = created.user.id;
-    createdAccount = true;
+  const resolved = await resolveCustomer(details, existingUser?.id ?? null);
+  if (!resolved.ok) {
+    return fail(
+      resolved.code === "account_exists" ? 409 : 500,
+      resolved.code,
+      resolved.message,
+    );
   }
+  const { profileId, createdAccount } = resolved;
 
   // Keep the profile in step with what was typed at checkout.
   await supabase

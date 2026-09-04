@@ -233,10 +233,16 @@ export function DateTimeStep({
         {slots !== null && !error && uniqueTimes.length === 0 && (
           <div className="rounded-[6px] border border-line bg-sand px-5 py-6 text-center">
             <p className="mb-1 text-[15px] text-ink">Nothing free here.</p>
-            <p className="text-[14px] text-muted">
+            <p className="mb-4 text-[14px] text-muted">
               Try another day or filter — or join the waiting list and we will
               tell you the moment something opens up.
             </p>
+            <a
+              href={`/waitlist?serviceId=${serviceId}${staffId ? `&staffId=${staffId}` : ""}`}
+              className="inline-flex min-h-[44px] items-center rounded-[4px] border border-line px-5 py-2 text-[14px] transition-colors hover:border-gold"
+            >
+              Join the waiting list
+            </a>
           </div>
         )}
 

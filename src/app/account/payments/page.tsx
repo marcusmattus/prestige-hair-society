@@ -30,7 +30,7 @@ const KIND_LABEL: Record<string, string> = {
 };
 
 export default async function PaymentsPage() {
-  const user = await requireUser("/account/payments");
+  await requireUser("/account/payments");
   const supabase = await createClient();
 
   // RLS confines both queries to this customer's own rows.

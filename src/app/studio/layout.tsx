@@ -23,6 +23,7 @@ const NAV = [
   // and that page guards itself.
   { href: "/studio/messages", label: "Messages", managerOnly: false },
   { href: "/studio/services", label: "Services", managerOnly: true },
+  { href: "/studio/settings/import", label: "Import", managerOnly: true },
 ];
 
 export default async function StudioLayout({

@@ -106,3 +106,15 @@ export function hoursUntil(instant: string | Date): number {
 export function isWithinPolicyWindow(startsAt: string | Date, windowHours: number): boolean {
   return hoursUntil(startsAt) >= windowHours;
 }
+
+/**
+ * Advance a salon-local YYYY-MM-DD date by whole days.
+ *
+ * Works on the date string rather than an instant, so it cannot drift across a
+ * DST boundary and needs no second read of the clock.
+ */
+export function addDaysToSalonDate(date: string, days: number): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const shifted = new Date(Date.UTC(y, m - 1, d + days));
+  return shifted.toISOString().slice(0, 10);
+}

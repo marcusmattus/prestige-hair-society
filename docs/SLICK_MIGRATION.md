@@ -110,11 +110,36 @@ The importer lives in `/studio/settings/import` (manager or admin only).
 5. **Roll back** if it went wrong, which deletes exactly the rows that run
    created and nothing else.
 
-> The importer's UI is not built yet in this repository. The `import_runs`
-> table, the mapping and report shape, and the rollback contract are all in
-> place; the CSV parsing and screens are outstanding. Until then, import via
-> SQL and record a matching `import_runs` row by hand so the audit trail is
-> complete.
+### What the importer covers today
+
+**Services and their categories.** Upload a services CSV and the wizard parses
+it, guesses the column mapping, validates every row and shows the report before
+anything is written. Categories named in the file are created as needed.
+
+Imported services arrive **inactive**, deliberately: an unverified price should
+not appear on the public catalogue because a spreadsheet said so. Review them in
+`/studio/services`, then activate.
+
+Row validation catches the mistakes that matter before they reach the database:
+
+| Case | What happens |
+| --- | --- |
+| No service name | Row rejected, line number reported |
+| Unreadable price (`POA`, `free`) | Row rejected — never silently imported as £0 |
+| Missing price | Imported as £0 with a warning |
+| Missing duration | Defaults to 60 minutes with a warning |
+| Duration outside 5–600 | Row rejected (the database would reject it too) |
+| Deposit above price | Capped at the price, with a warning |
+| Slug already in the catalogue | Skipped as a duplicate, never overwritten |
+| Same name twice in one file | First imported, rest skipped |
+
+Money and duration parsing handles the shapes these exports actually contain —
+`£1,085.50`, `85.5`, `120 GBP`, `1h 30m`, `01:30`, `90 mins` — and is covered by
+`tests/import.test.ts`.
+
+**Staff, customers, appointments and opening hours** are not yet in the wizard.
+Import those via SQL and record a matching `import_runs` row by hand so the
+audit trail stays complete.
 
 ## Duplicates
 
