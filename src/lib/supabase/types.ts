@@ -1400,6 +1400,10 @@ export type Database = {
           is_active: boolean;
           created_at: string;
           updated_at: string;
+          calendar_token: string;
+          notification_email: string | null;
+          notify_on_booking: boolean;
+          notify_on_cancellation: boolean;
         };
         Insert: {
           id?: string;
@@ -1432,6 +1436,10 @@ export type Database = {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+          calendar_token?: string;
+          notification_email?: string | null;
+          notify_on_booking?: boolean;
+          notify_on_cancellation?: boolean;
         };
         Update: {
           id?: string;
@@ -1464,6 +1472,10 @@ export type Database = {
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
+          calendar_token?: string;
+          notification_email?: string | null;
+          notify_on_booking?: boolean;
+          notify_on_cancellation?: boolean;
         };
         Relationships: [];
       };
@@ -1627,6 +1639,7 @@ export type Database = {
           deleted_at: string | null;
           created_at: string;
           updated_at: string;
+          needs_review: boolean;
         };
         Insert: {
           id?: string;
@@ -1654,6 +1667,7 @@ export type Database = {
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          needs_review?: boolean;
         };
         Update: {
           id?: string;
@@ -1681,6 +1695,7 @@ export type Database = {
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          needs_review?: boolean;
         };
         Relationships: [
           {
@@ -1804,6 +1819,7 @@ export type Database = {
           deleted_at: string | null;
           created_at: string;
           updated_at: string;
+          calendar_token: string;
         };
         Insert: {
           id?: string;
@@ -1822,6 +1838,7 @@ export type Database = {
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          calendar_token?: string;
         };
         Update: {
           id?: string;
@@ -1840,6 +1857,7 @@ export type Database = {
           deleted_at?: string | null;
           created_at?: string;
           updated_at?: string;
+          calendar_token?: string;
         };
         Relationships: [
           {
@@ -2236,7 +2254,7 @@ export type Database = {
       import_status: "draft" | "previewed" | "applied" | "rolled_back" | "failed";
       message_channel: "email" | "sms";
       message_delivery_status: "queued" | "sent" | "delivered" | "failed" | "skipped";
-      message_kind: "booking_confirmation" | "deposit_receipt" | "appointment_reminder" | "reschedule_confirmation" | "cancellation_confirmation" | "waitlist_availability" | "payment_failure" | "refund_confirmation" | "post_appointment_thanks" | "review_request" | "rebooking_reminder";
+      message_kind: "booking_confirmation" | "deposit_receipt" | "appointment_reminder" | "reschedule_confirmation" | "cancellation_confirmation" | "waitlist_availability" | "payment_failure" | "refund_confirmation" | "post_appointment_thanks" | "review_request" | "rebooking_reminder" | "staff_booking_alert" | "staff_cancellation_alert";
       payment_kind: "deposit" | "balance" | "full" | "in_salon";
       payment_status: "requires_payment" | "processing" | "succeeded" | "failed" | "refunded" | "partially_refunded" | "disputed";
       pricing_mode: "fixed" | "from";

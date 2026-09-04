@@ -13,6 +13,9 @@ export PGHOST="${PGHOST:-/var/run/postgresql}"
 
 echo "Seeding..."
 psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/seed.sql"
+# The SQL suites are written against the placeholder fixture catalogue, which
+# has two stylists eligible for one service. The real catalogue has one stylist.
+psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/local/01_test_fixtures.sql"
 
 echo
 echo "=== Constraint tests ==="

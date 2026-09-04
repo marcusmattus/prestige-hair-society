@@ -54,7 +54,7 @@ async function loadBookingContext(bookingId: string): Promise<BookingContext | n
     // selects from the string's literal type, which `+` erases.
     .select(
       `id, reference, salon_id, profile_id, starts_at, ends_at, total_price_pence,
-       deposit_pence, deposit_paid_pence, balance_paid_pence,
+       deposit_pence, deposit_paid_pence, balance_paid_pence, customer_notes,
        service:service_id(name, preparation_instructions, aftercare_instructions),
        staff:staff_id(display_name),
        profile:profile_id(first_name, last_name, email, phone, reminder_email, reminder_sms, marketing_email),
@@ -114,7 +114,11 @@ async function loadBookingContext(bookingId: string): Promise<BookingContext | n
       customer: {
         firstName: profile.first_name,
         lastName: profile.last_name,
+        fullName:
+          [profile.first_name, profile.last_name].filter(Boolean).join(" ") ||
+          "A customer",
         email: profile.email,
+        phone: profile.phone ?? "not given",
       },
       booking: {
         reference: booking.reference,
@@ -126,6 +130,7 @@ async function loadBookingContext(bookingId: string): Promise<BookingContext | n
         total: formatPence(booking.total_price_pence),
         depositPaid: formatPence(booking.deposit_paid_pence),
         balance: formatPence(outstanding),
+        customerNotes: booking.customer_notes ?? "None",
       },
       service: {
         preparation: service?.preparation_instructions ?? "Nothing in particular.",
@@ -142,6 +147,7 @@ async function loadBookingContext(bookingId: string): Promise<BookingContext | n
         preferences: `${appUrl}/account/preferences`,
         retry: `${appUrl}/book?retry=${booking.reference}`,
         review: `${appUrl}/account/bookings`,
+        studio: `${appUrl}/studio/bookings/${booking.id}`,
       },
     },
   };
@@ -306,7 +312,63 @@ export async function queueBookingMessages(
     },
   });
 
+  await queueSalonAlert(bookingId, "staff_booking_alert");
   await scheduleReminders(bookingId);
+}
+
+/**
+ * Tell the salon somebody has booked.
+ *
+ * Routed through the same ledger as customer mail, so the idempotency key --
+ * one per booking -- means a replayed Stripe webhook cannot produce a second
+ * alert. It goes to salons.notification_email, falling back to salons.email;
+ * with neither set nothing is sent and the reason is logged rather than
+ * failing the booking, because a missing alert address must never cost a
+ * customer their appointment.
+ */
+export async function queueSalonAlert(
+  bookingId: string,
+  kind: "staff_booking_alert" | "staff_cancellation_alert",
+) {
+  const supabase = createAdminClient();
+  const ctx = await loadBookingContext(bookingId);
+  if (!ctx) return;
+
+  const { data: salon } = await supabase
+    .from("salons")
+    .select("notification_email, email, notify_on_booking, notify_on_cancellation")
+    .eq("id", ctx.salonId)
+    .maybeSingle();
+
+  if (!salon) return;
+
+  const wanted =
+    kind === "staff_booking_alert"
+      ? salon.notify_on_booking
+      : salon.notify_on_cancellation;
+  if (!wanted) return;
+
+  const recipient = salon.notification_email ?? salon.email;
+  if (!recipient) {
+    console.warn(
+      `[comms] ${kind} for ${bookingId} not sent: no salon notification address is set. ` +
+        "Set one in /studio/settings.",
+    );
+    return;
+  }
+
+  await dispatch({
+    kind,
+    channel: "email",
+    salonId: ctx.salonId,
+    // The alert concerns this customer but is addressed to the salon; the
+    // profile link keeps it attached to the right client record in the log.
+    profileId: ctx.profileId,
+    bookingId: ctx.bookingId,
+    recipient,
+    context: ctx.context,
+    idempotencyKey: idempotencyKey([kind, bookingId]),
+  });
 }
 
 /** (Re)build the reminder ladder. Called after booking and after a reschedule. */
@@ -478,4 +540,6 @@ export async function queueCancellationConfirmation(
     },
     idempotencyKey: idempotencyKey(["cancellation", bookingId]),
   });
+
+  await queueSalonAlert(bookingId, "staff_cancellation_alert");
 }

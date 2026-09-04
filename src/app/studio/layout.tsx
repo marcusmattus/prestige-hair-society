@@ -16,6 +16,7 @@ const NAV = [
   { href: "/studio", label: "Today", managerOnly: false },
   { href: "/studio/pipeline", label: "Pipeline", managerOnly: false },
   { href: "/studio/calendar", label: "Calendar", managerOnly: false },
+  { href: "/studio/calendar/subscribe", label: "On your phone", managerOnly: false },
   { href: "/studio/bookings", label: "Bookings", managerOnly: false },
   { href: "/studio/clients", label: "Clients", managerOnly: false },
   // The message log is readable by any staff member -- a stylist may need to
@@ -24,6 +25,7 @@ const NAV = [
   { href: "/studio/messages", label: "Messages", managerOnly: false },
   { href: "/studio/services", label: "Services", managerOnly: true },
   { href: "/studio/settings/import", label: "Import", managerOnly: true },
+  { href: "/studio/settings", label: "Settings", managerOnly: true },
 ];
 
 export default async function StudioLayout({

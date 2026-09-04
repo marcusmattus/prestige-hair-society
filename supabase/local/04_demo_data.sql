@@ -18,9 +18,7 @@ set client_min_messages = warning;
 do $$
 declare
   v_salon uuid := '11111111-1111-4111-8111-111111111111';
-  v_amara uuid;
-  v_nadia uuid;
-  v_simone uuid;
+  v_nekeia uuid;
   v_silk uuid;
   v_cut uuid;
   v_colour uuid;
@@ -43,13 +41,13 @@ declare
   v_desk uuid := 'bbbbbbbb-0000-4000-8000-000000000002';
   v_stylist uuid := 'bbbbbbbb-0000-4000-8000-000000000003';
 begin
-  select id into v_amara from public.staff where slug = 'amara-bennett';
-  select id into v_nadia from public.staff where slug = 'nadia-okonkwo';
-  select id into v_simone from public.staff where slug = 'simone-clarke';
-  select id into v_silk from public.services where slug = 'silk-press';
-  select id into v_cut from public.services where slug = 'wash-cut-and-finish';
-  select id into v_colour from public.services where slug = 'colour-services';
-  select id into v_treatment from public.services where slug = 'hair-treatments';
+  -- The real catalogue has one stylist, so every appointment below belongs to
+  -- her and they must not overlap. Durations come from supabase/catalogue.sql.
+  select id into v_nekeia from public.staff where slug = 'nekeia-griffith';
+  select id into v_silk from public.services where slug = 'silk-press-short-hair';        -- 90 + 15
+  select id into v_cut from public.services where slug = 'wash-and-blow-dry-medium-hair'; -- 75 + 15
+  select id into v_colour from public.services where slug = 'full-head-colour';           -- 90 + 15
+  select id into v_treatment from public.services where slug = 'olaplex-rebuilding-treatment'; -- 45 + 15
 
   -- -------------------------------------------------------------------------
   -- People. handle_new_user() creates the profile and the 'customer' role.
@@ -74,21 +72,21 @@ begin
 
   -- Give one stylist a login so the "stylist sees only their own column" path
   -- can be exercised.
-  update public.staff set profile_id = v_stylist where id = v_amara;
+  update public.staff set profile_id = v_stylist where id = v_nekeia;
 
   -- Customer context a stylist would actually rely on.
   update public.profiles set
     hair_goals = 'Growing out a bob. Wants length without losing the shape.',
     marketing_email = true,
     reminder_sms = true,
-    favourite_staff_id = v_amara
+    favourite_staff_id = v_nekeia
   where id = v_ada;
 
   update public.profiles set
     hair_goals = 'Grey blending, as low-maintenance as possible.',
     allergies = 'Reacted to a PPD-based colour in 2023. Patch test every time.',
     accessibility_requirements = 'Prefers a chair near the front; uses a stick.',
-    favourite_staff_id = v_nadia
+    favourite_staff_id = v_nekeia
   where id = v_bea;
 
   update public.profiles set
@@ -123,38 +121,36 @@ begin
   -- constraint and price rule applies.
   -- -------------------------------------------------------------------------
 
-  v_hold := public.hold_slot(v_amara, v_silk, (v_next_tuesday + time '10:00') at time zone 'Europe/London', v_ada);
+  v_hold := public.hold_slot(v_nekeia, v_silk, (v_next_tuesday + time '10:00') at time zone 'Europe/London', v_ada);
   v_booking := public.book_slot(v_hold.hold_token, v_ada, '{}', 'Please keep as much length as possible.');
-  perform public.confirm_booking_paid(v_booking.id, 3000, 'deposit');
+  perform public.confirm_booking_paid(v_booking.id, 2000, 'deposit');
 
   insert into public.payments (
     booking_id, profile_id, salon_id, kind, status, amount_pence,
     stripe_payment_intent_id, payment_method_brand, payment_method_last4, paid_at
   ) values (
-    v_booking.id, v_ada, v_salon, 'deposit', 'succeeded', 3000,
+    v_booking.id, v_ada, v_salon, 'deposit', 'succeeded', 2000,
     'pi_demo_' || replace(v_booking.id::text, '-', ''), 'visa', '4242', now()
   );
 
-  -- Colour is 180 minutes plus a 30-minute buffer, so it has to start after
-  -- the 13:00-13:45 break to fit inside the Thursday 10:00-20:00 roster.
-  v_hold := public.hold_slot(v_nadia, v_colour, (v_next_thursday + time '14:00') at time zone 'Europe/London', v_bea);
+  v_hold := public.hold_slot(v_nekeia, v_colour, (v_next_thursday + time '14:00') at time zone 'Europe/London', v_bea);
   v_booking := public.book_slot(v_hold.hold_token, v_bea, '{}', 'Patch test done on the 3rd.');
-  perform public.confirm_booking_paid(v_booking.id, 5000, 'deposit');
+  perform public.confirm_booking_paid(v_booking.id, 2000, 'deposit');
 
   insert into public.payments (
     booking_id, profile_id, salon_id, kind, status, amount_pence,
     stripe_payment_intent_id, payment_method_brand, payment_method_last4, paid_at
   ) values (
-    v_booking.id, v_bea, v_salon, 'deposit', 'succeeded', 5000,
+    v_booking.id, v_bea, v_salon, 'deposit', 'succeeded', 2000,
     'pi_demo_' || replace(v_booking.id::text, '-', ''), 'mastercard', '4444', now()
   );
 
-  v_hold := public.hold_slot(v_simone, v_treatment, (v_next_tuesday + time '15:00') at time zone 'Europe/London', v_cleo);
+  v_hold := public.hold_slot(v_nekeia, v_treatment, (v_next_tuesday + time '15:00') at time zone 'Europe/London', v_cleo);
   v_booking := public.book_slot(v_hold.hold_token, v_cleo);
   perform public.confirm_booking_paid(v_booking.id, 2000, 'deposit');
 
   -- A booking still awaiting payment, so the pipeline has something in it.
-  v_hold := public.hold_slot(v_amara, v_cut, (v_next_thursday + time '16:00') at time zone 'Europe/London', v_dara);
+  v_hold := public.hold_slot(v_nekeia, v_cut, (v_next_thursday + time '16:00') at time zone 'Europe/London', v_dara);
   perform public.book_slot(v_hold.hold_token, v_dara);
 
   -- -------------------------------------------------------------------------
@@ -169,16 +165,16 @@ begin
     service_price_pence, total_price_pence, deposit_pence,
     deposit_paid_pence, balance_paid_pence, completed_at, source
   ) values (
-    v_salon, v_amara, v_ada, v_silk, 'completed',
+    v_salon, v_nekeia, v_ada, v_silk, 'completed',
     v_last_month, v_last_month + interval '90 minutes', v_last_month + interval '105 minutes',
-    8500, 8500, 3000, 3000, 5500, v_last_month + interval '105 minutes', 'web'
+    7000, 7000, 2000, 2000, 5000, v_last_month + interval '105 minutes', 'web'
   ) returning * into v_booking;
 
   insert into public.payments (
     booking_id, profile_id, salon_id, kind, status, amount_pence,
     stripe_payment_intent_id, paid_at
   ) values (
-    v_booking.id, v_ada, v_salon, 'deposit', 'succeeded', 3000,
+    v_booking.id, v_ada, v_salon, 'deposit', 'succeeded', 2000,
     'pi_demo_past_' || replace(v_booking.id::text, '-', ''), v_last_month - interval '10 days'
   );
 
@@ -186,8 +182,8 @@ begin
     booking_id, profile_id, salon_id, kind, status, amount_pence,
     recorded_by_staff_id, paid_at
   ) values (
-    v_booking.id, v_ada, v_salon, 'in_salon', 'succeeded', 5500,
-    v_amara, v_last_month + interval '105 minutes'
+    v_booking.id, v_ada, v_salon, 'in_salon', 'succeeded', 5000,
+    v_nekeia, v_last_month + interval '105 minutes'
   );
 
   -- A no-show, so the counters and the client profile have something to show.
@@ -196,11 +192,11 @@ begin
     starts_at, ends_at, blocked_until,
     service_price_pence, total_price_pence, deposit_pence, deposit_paid_pence, source
   ) values (
-    v_salon, v_nadia, v_dara, v_cut,
+    v_salon, v_nekeia, v_dara, v_cut,
     'confirmed', -- set to no_show below so the counter trigger fires
     v_last_month + interval '2 days', v_last_month + interval '2 days 90 minutes',
     v_last_month + interval '2 days 105 minutes',
-    7500, 7500, 2500, 2500, 'web'
+    6000, 6000, 2000, 2000, 'web'
   ) returning * into v_booking;
 
   update public.bookings set status = 'no_show' where id = v_booking.id;
@@ -234,7 +230,7 @@ begin
     salon_id, profile_id, service_id, staff_id,
     earliest_date, latest_date, times_of_day, status
   ) values (
-    v_salon, v_cleo, v_silk, v_amara,
+    v_salon, v_cleo, v_silk, v_nekeia,
     v_next_tuesday, v_next_tuesday + 14, '{morning,afternoon}', 'active'
   );
 

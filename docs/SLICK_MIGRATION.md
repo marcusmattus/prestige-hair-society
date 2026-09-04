@@ -20,18 +20,32 @@ Ask Slick for an export of:
 - Customers — **only with the owner's written authorisation**, and only for the
   fields you actually need
 
-## What is a placeholder today
+## Status: the catalogue has landed
 
-`supabase/seed.sql` is entirely placeholder data. Until the export is imported,
-the following are invented and must not be presented as real:
+The service catalogue was transcribed from the salon's live price list and now
+lives in `supabase/catalogue.sql` — 77 services across 14 categories, with
+Nekeia Griffith as the stylist. **Those prices are verified.**
 
-- All eight service prices, deposits and durations
-- Opening hours
-- The six stylist names and biographies
-- The Battersea postcode and coordinates
+Still outstanding, and still labelled as placeholders on the public pages:
 
-The public pages say so in as many words. That wording should stay until the
-real catalogue is in.
+| | Status |
+| --- | --- |
+| Service names and prices | **Verified** |
+| Service durations and buffers | Estimated — every row flagged `needs_review` |
+| Deposits | Estimated by rule: 25%, rounded up to £5, min £10, max £75 |
+| Opening hours | Placeholder — confirm against the salon's real week |
+| Postcode and coordinates | Placeholder |
+| Customers and appointment history | Not migrated |
+
+Durations matter more than they look: they are what availability is computed
+from, so a service booked at 60 minutes that really takes 90 will double-book
+the day. Confirming them in `/studio/services` is the first job before go-live.
+
+One consequence worth knowing now: with a single stylist and a 13:00–13:45
+break, the longest services (Starter Locs and Miracle Knots at 5½ hours
+including buffer) only fit on Thursdays and Fridays, when the salon is open
+until 20:00. They are unbookable on Tuesday, Wednesday and Saturday. If those
+should be bookable on shorter days, the break needs to move or shorten.
 
 ## Import order
 

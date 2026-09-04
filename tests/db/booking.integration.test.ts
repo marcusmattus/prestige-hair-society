@@ -41,16 +41,75 @@ beforeAll(async () => {
 
   pool = new Pool({ connectionString: DATABASE_URL, max: 8 });
 
-  const { rows } = await pool.query(`
-    select
-      (select id from public.staff where slug = 'amara-bennett') as staff_id,
-      (select id from public.staff where slug = 'rebecca-adeyemi') as other_staff_id,
-      (select id from public.services where slug = 'silk-press') as service_id
+  // Resolve fixtures from whatever catalogue is loaded rather than from fixed
+  // slugs: the real catalogue has one stylist and different slugs from the test
+  // fixture set, and these tests are about concurrency, not about either.
+  //
+  // The service has to be short enough to fit several in a day around the
+  // lunch break, and there must be a second stylist for the "different chair"
+  // case -- so this creates one when the catalogue has only Nekeia.
+  const { rows: serviceRows } = await pool.query(`
+    select sv.id, sv.duration_minutes, sv.buffer_minutes
+    from public.services sv
+    where sv.deleted_at is null and sv.is_active
+      and sv.duration_minutes between 30 and 90
+      and exists (select 1 from public.staff_services ss where ss.service_id = sv.id)
+    order by sv.duration_minutes
+    limit 1
   `);
 
-  staffId = rows[0].staff_id;
-  otherStaffId = rows[0].other_staff_id;
-  serviceId = rows[0].service_id;
+  if (serviceRows.length === 0) {
+    throw new Error(
+      "No bookable service found. Run ./scripts/db-demo.sh or ./scripts/db-test.sh first.",
+    );
+  }
+  serviceId = serviceRows[0].id;
+
+  const { rows: staffRows } = await pool.query(
+    `select st.id
+     from public.staff st
+     join public.staff_services ss on ss.staff_id = st.id and ss.service_id = $1
+     where st.is_active and st.is_bookable and st.deleted_at is null
+     order by st.display_order
+     limit 2`,
+    [serviceId],
+  );
+
+  staffId = staffRows[0].id;
+
+  if (staffRows.length > 1) {
+    otherStaffId = staffRows[1].id;
+  } else {
+    // Clone the roster and breaks of the stylist we have, so the second chair
+    // is open at exactly the same times and the comparison is like for like.
+    const { rows: created } = await pool.query(
+      `insert into public.staff (salon_id, display_name, slug, title, is_bookable, display_order)
+       select salon_id, 'Race Test Stylist', 'race-test-stylist', 'Test fixture', true, 99
+       from public.staff where id = $1
+       on conflict (salon_id, slug) do update set is_active = true, deleted_at = null
+       returning id`,
+      [staffId],
+    );
+    otherStaffId = created[0].id;
+
+    await pool.query(
+      `insert into public.staff_services (staff_id, service_id) values ($1, $2)
+       on conflict do nothing`,
+      [otherStaffId, serviceId],
+    );
+    await pool.query(
+      `insert into public.staff_schedules (staff_id, day_of_week, starts_at, ends_at)
+       select $1, day_of_week, starts_at, ends_at from public.staff_schedules where staff_id = $2
+       on conflict do nothing`,
+      [otherStaffId, staffId],
+    );
+    await pool.query(
+      `insert into public.staff_breaks (staff_id, day_of_week, starts_at, ends_at, label)
+       select $1, day_of_week, starts_at, ends_at, label from public.staff_breaks where staff_id = $2
+       on conflict do nothing`,
+      [otherStaffId, staffId],
+    );
+  }
 
   // Two test customers, created through the same trigger real sign-ups use.
   await pool.query(
@@ -76,6 +135,9 @@ afterAll(async () => {
   await pool.query("delete from public.bookings where profile_id = any($1)", [
     [customerA, customerB],
   ]);
+  await pool.query(
+    "delete from public.staff where slug in ('race-test-stylist', 'ineligible-test-stylist')",
+  );
   await pool.end();
 });
 
@@ -263,8 +325,16 @@ describe.runIf(process.env.VITEST_DB !== "off")("booking under concurrency", () 
   it("refuses to book a stylist who does not offer the service", async () => {
     if (!available) return;
     const slot = await futureSlot("11:00");
+
+    // A stylist with no eligibility for this service. Created rather than
+    // looked up, so the test does not depend on the catalogue having one.
     const { rows } = await pool.query(
-      "select id from public.staff where slug = 'simone-clarke'",
+      `insert into public.staff (salon_id, display_name, slug, title, is_bookable, display_order)
+       select salon_id, 'Ineligible Test Stylist', 'ineligible-test-stylist', 'Test fixture', true, 98
+       from public.staff where id = $1
+       on conflict (salon_id, slug) do update set is_active = true, deleted_at = null
+       returning id`,
+      [staffId],
     );
 
     await expect(

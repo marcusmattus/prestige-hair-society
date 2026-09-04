@@ -10,11 +10,12 @@ export PGHOST="${PGHOST:-/var/run/postgresql}"
 
 "$ROOT/scripts/db-reset.sh" "$DB"
 psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/seed.sql"
+psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/catalogue.sql"
 psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/local/04_demo_data.sql"
 
 echo
 echo "Ready. Sign-ins (set passwords via Supabase Auth, or use magic links):"
 echo "  owner@example.test    admin + manager"
 echo "  desk@example.test     receptionist"
-echo "  stylist@example.test  stylist (Amara Bennett)"
+echo "  stylist@example.test  stylist (Nekeia Griffith)"
 echo "  ada@example.test      customer with history"

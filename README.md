@@ -77,6 +77,18 @@ mapping, read a row-by-row validation report, then apply or roll back.
 Imported services arrive inactive so an unverified price cannot reach the
 public catalogue unreviewed.
 
+**On the owner's phone** — a subscribable read-only `.ics` feed, salon-wide or
+per stylist, with each entry marked `DEPOSIT DUE`, `UNPAID` or `CANCELLED` in
+its title so the state is legible in a month view. `/studio/calendar/subscribe`
+gives the link and the iPhone and Google Calendar steps. The URL is the
+credential — a calendar app cannot sign in — so it is a dedicated rotatable
+token, masked on screen, and rotatable from settings when a phone is lost.
+
+**Booking alerts** — an email to the salon the moment a deposit clears, and on
+cancellation, carrying the service, time, contact details, what was paid and
+what is outstanding. Routed through the same idempotent ledger as customer
+mail, so a replayed webhook cannot alert twice.
+
 **Cron** — hold sweeping, message delivery, waiting-list matching.
 
 ## Verification
@@ -85,10 +97,11 @@ public catalogue unreviewed.
 npm run typecheck     # clean
 npm run lint          # clean
 npm run build         # clean
-npm test              # 141 tests
+npm test              # 160 tests
 npm run db:test       # 13 constraint groups + 8 RLS groups against real Postgres
 npm run db:demo       # local database with fictional people and appointments
 npm run test:e2e      # 24 Playwright specs, desktop and mobile
+npm run db:demo       # real catalogue + fictional people, for development
 ```
 
 `tests/db/booking.integration.test.ts` opens two connections in overlapping
@@ -97,12 +110,26 @@ which would be a deadlock, and not two, which would be a double booking. It
 also replays a payment webhook five times concurrently and checks the deposit
 is still counted once.
 
-## Placeholders
+## The catalogue
 
-Every price, opening hour and stylist name in `supabase/seed.sql` is invented,
-and the public pages say so. They stay that way until the verified catalogue is
-imported — see [SLICK_MIGRATION.md](docs/SLICK_MIGRATION.md). Photography is
-rendered as striped blocks, as in the original design.
+`supabase/catalogue.sql` holds the salon's **real** catalogue — 77 services in
+14 categories, transcribed from the live price list, with Nekeia Griffith as
+the stylist. Those prices are verified and should not be described as
+placeholders.
+
+Durations, buffers and deposits were **not** on that price list. The values in
+the file are estimates so the booking engine has something to work with, and
+every row is flagged `needs_review`, which surfaces as a prompt in
+`/studio/services` and a banner in `/studio/settings`. Deposits follow one
+documented rule: 25% rounded up to the nearest £5, minimum £10, capped at £75.
+
+Still placeholders, and still labelled as such on the public pages: opening
+hours, the postcode and coordinates, and photography (striped blocks, as in the
+original design).
+
+`supabase/seed.sql` is the production-safe base — salon, hours, tags, message
+templates. `supabase/local/01_test_fixtures.sql` is the placeholder catalogue
+the SQL suites are written against; it describes nothing real.
 
 The Playwright specs need a running app with a reachable database, so they are
 not part of `npm test`. They have not been executed in this environment — no

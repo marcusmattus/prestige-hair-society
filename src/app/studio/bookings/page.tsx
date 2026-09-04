@@ -3,6 +3,7 @@ import Link from "next/link";
 import { requireStaff } from "@/lib/auth/roles";
 import { balanceDue, formatPence } from "@/lib/money";
 import { BOOKING_STATUSES, asEnum } from "@/lib/studio/filters";
+import { depositState } from "@/lib/studio/pipeline";
 import { createClient } from "@/lib/supabase/server";
 import { formatTime, formatWhenShort, toSalonDate } from "@/lib/time";
 
@@ -44,7 +45,7 @@ async function loadBookings(params: {
     .from("bookings")
     .select(
       `id, reference, status, starts_at, ends_at, total_price_pence,
-       deposit_paid_pence, balance_paid_pence, source, is_walk_in,
+       deposit_pence, deposit_paid_pence, balance_paid_pence, source, is_walk_in,
        service:service_id(name),
        staff:staff_id(id, display_name),
        profile:profile_id(id, first_name, last_name, email, phone),
@@ -204,6 +205,7 @@ export default async function StudioBookingsPage({
                 <Th>Service</Th>
                 <Th>Stylist</Th>
                 <Th>Status</Th>
+                <Th>Deposit</Th>
                 <Th>Balance</Th>
               </tr>
             </thead>
@@ -255,6 +257,16 @@ export default async function StudioBookingsPage({
                     <Td className="text-muted">{b.staff?.display_name ?? "—"}</Td>
                     <Td>
                       <StatusPill status={b.status} />
+                    </Td>
+                    <Td>
+                      <DepositPill
+                        state={depositState({
+                          depositPence: b.deposit_pence,
+                          depositPaidPence: b.deposit_paid_pence,
+                        })}
+                        paidPence={b.deposit_paid_pence}
+                        duePence={b.deposit_pence}
+                      />
                     </Td>
                     <Td>
                       {balance > 0 ? (
@@ -309,6 +321,43 @@ function Labelled({ label, children }: { label: string; children: React.ReactNod
       </span>
       {children}
     </label>
+  );
+}
+
+/**
+ * Deposit state, spelled out rather than inferred.
+ *
+ * "Outstanding" is the one that costs the salon money, so it is the one that
+ * is coloured; a service with no deposit required reads as quiet text rather
+ * than a green tick it has not earned.
+ */
+function DepositPill({
+  state,
+  paidPence,
+  duePence,
+}: {
+  state: "paid" | "outstanding" | "none_required";
+  paidPence: number;
+  duePence: number;
+}) {
+  if (state === "none_required") {
+    return <span className="text-[13px] text-muted">none required</span>;
+  }
+
+  if (state === "paid") {
+    return (
+      <span className="rounded-[3px] border border-moss px-2 py-0.5 text-[12px] text-moss">
+        paid {formatPence(paidPence)}
+      </span>
+    );
+  }
+
+  return (
+    <span className="rounded-[3px] border border-[#B4483C] px-2 py-0.5 text-[12px] text-[#B4483C]">
+      {paidPence > 0
+        ? `${formatPence(paidPence)} of ${formatPence(duePence)}`
+        : `${formatPence(duePence)} due`}
+    </span>
   );
 }
 
