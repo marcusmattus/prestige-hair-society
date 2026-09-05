@@ -118,3 +118,18 @@ export function addDaysToSalonDate(date: string, days: number): string {
   const shifted = new Date(Date.UTC(y, m - 1, d + days));
   return shifted.toISOString().slice(0, 10);
 }
+
+/**
+ * The instant `days` ago, as an ISO string.
+ *
+ * Lives here rather than inline in a page so that reading the clock happens
+ * outside a component's render, which React's rules require.
+ */
+export function sinceDaysAgo(days: number): string {
+  return new Date(Date.now() - days * 86_400_000).toISOString();
+}
+
+/** Now, as an ISO string. Same reason. */
+export function nowIso(): string {
+  return new Date().toISOString();
+}

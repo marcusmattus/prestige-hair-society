@@ -56,7 +56,11 @@ is the sole source of truth for payment.
 reschedule and cancel against the salon's own policy windows; contact
 preferences that separate reminders from marketing.
 
-**Studio** — a pipeline board grouping every booking by what it needs next
+**Studio** — availability (opening hours, rosters, breaks, time off, one-off
+closures), stylists and their service eligibility, a payments ledger with
+Stripe refunds and outstanding balances, reports covering takings, service
+mix, chair utilisation and new-versus-returning customers; a pipeline board
+grouping every booking by what it needs next
 (awaiting deposit, in today, confirmed, balance outstanding, settled, lost)
 with each card carrying its own email history; today's dashboard; a calendar
 with one column per stylist drawing appointments, buffers, breaks and time off
@@ -97,7 +101,7 @@ mail, so a replayed webhook cannot alert twice.
 npm run typecheck     # clean
 npm run lint          # clean
 npm run build         # clean
-npm test              # 160 tests
+npm test              # 182 tests
 npm run db:test       # 13 constraint groups + 8 RLS groups against real Postgres
 npm run db:demo       # local database with fictional people and appointments
 npm run test:e2e      # 24 Playwright specs, desktop and mobile
@@ -142,13 +146,13 @@ booking is covered by the database integration tests instead.
 
 Listed here rather than left to be discovered:
 
-- Drag-and-drop on the calendar (select-and-reschedule works)
 - The Slick importer covers services and their categories; staff, customers,
   appointments and opening hours are still a SQL job
-- `/studio` sections for stylists, availability, payments and reports
-  (deliberately absent from the studio nav rather than left as dead links)
 - Photo upload UI and gift-card redemption at checkout
 - Stripe Payment Element driven end to end in CI
+- Calendar drag-and-drop needs a mouse or trackpad; HTML5 drag events do not
+  fire on touch, so the reschedule action in the detail panel remains the way
+  to move an appointment on a tablet
 
 ## Design source
 

@@ -29,7 +29,7 @@ export default async function CalendarPage({
   const supabase = await createClient();
   const { data: salon } = await supabase
     .from("salons")
-    .select("id, timezone")
+    .select("id, timezone, slot_interval_minutes")
     .limit(1)
     .maybeSingle();
 
@@ -100,6 +100,7 @@ export default async function CalendarPage({
       closesAt={override?.closes_at ?? todayHours?.closes_at ?? "20:00"}
       isClosed={override?.is_closed ?? todayHours?.is_closed ?? false}
       closureReason={override?.reason ?? null}
+      slotIntervalMinutes={salon?.slot_interval_minutes ?? 15}
     />
   );
 }

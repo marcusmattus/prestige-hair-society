@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { studioRescheduleAction, type ActionResult } from "@/lib/studio/actions";
 import { balanceDue, formatPence } from "@/lib/money";
 import { formatDateLong, formatTime, inZone, toSalonDate } from "@/lib/time";
 import { cn } from "@/lib/utils";
@@ -56,6 +57,7 @@ export function DayCalendar({
   closesAt,
   isClosed,
   closureReason,
+  slotIntervalMinutes,
 }: {
   date: string;
 
@@ -68,10 +70,44 @@ export function DayCalendar({
   closesAt: string;
   isClosed: boolean;
   closureReason: string | null;
+  slotIntervalMinutes: number;
 }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<BookingRow | null>(null);
+
+  // Drag state. HTML5 drag-and-drop carries no useful payload across
+  // components here, so the booking being dragged is held in a ref rather
+  // than in dataTransfer -- and a ref rather than state so that starting a
+  // drag does not re-render every column mid-gesture.
+  const dragging = useRef<BookingRow | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    staffId: string;
+    minutes: number;
+    /** Length of the appointment being dragged, so the preview is its real size. */
+    durationMinutes: number;
+  } | null>(null);
+  const [pendingMove, setPendingMove] = useState<{
+    booking: BookingRow;
+    staffId: string;
+    staffName: string;
+    startsAt: string;
+    localTime: string;
+  } | null>(null);
+
+  /**
+   * Where in the day a pointer landed, snapped to the salon's slot grid.
+   *
+   * Snapping matters: a drop is a gesture, not a time entry, and an
+   * appointment at 10:07 would be rejected by availability anyway.
+   */
+  function minutesFromDrop(e: React.DragEvent<HTMLDivElement>): number {
+    const bounds = e.currentTarget.getBoundingClientRect();
+    const offsetMinutes = (e.clientY - bounds.top) / PX_PER_MINUTE;
+    const absolute = openMinutes + offsetMinutes;
+    const snapped = Math.round(absolute / slotIntervalMinutes) * slotIntervalMinutes;
+    return Math.max(openMinutes, Math.min(closeMinutes - 5, snapped));
+  }
 
   const openMinutes = toMinutes(opensAt);
   const closeMinutes = toMinutes(closesAt);
@@ -176,9 +212,70 @@ export function DayCalendar({
               return (
                 <div
                   key={person.id}
-                  className="relative border-r border-line last:border-r-0"
+                  className={cn(
+                    "relative border-r border-line last:border-r-0",
+                    dropTarget?.staffId === person.id && "bg-sand/60",
+                  )}
                   style={{ height: gridHeight }}
+                  onDragOver={(e) => {
+                    if (!dragging.current) return;
+                    // Without preventDefault the browser refuses the drop.
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = "move";
+                    setDropTarget({
+                      staffId: person.id,
+                      minutes: minutesFromDrop(e),
+                      durationMinutes: Math.round(
+                        (Date.parse(dragging.current.blocked_until) -
+                          Date.parse(dragging.current.starts_at)) /
+                          60_000,
+                      ),
+                    });
+                  }}
+                  onDragLeave={(e) => {
+                    // Ignore the events fired while crossing child elements.
+                    if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                    setDropTarget((t) => (t?.staffId === person.id ? null : t));
+                  }}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const booking = dragging.current;
+                    dragging.current = null;
+                    setDropTarget(null);
+                    if (!booking) return;
+
+                    const minutes = minutesFromDrop(e);
+                    const localTime = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(
+                      minutes % 60,
+                    ).padStart(2, "0")}`;
+
+                    // Dropping something back exactly where it was is a slip,
+                    // not an instruction.
+                    const currentMinutes = localMinutes(booking.starts_at, timezone, date);
+                    if (booking.staff_id === person.id && currentMinutes === minutes) return;
+
+                    setPendingMove({
+                      booking,
+                      staffId: person.id,
+                      staffName: person.display_name,
+                      localTime,
+                      // The salon's wall clock, converted on the server where
+                      // the timezone is authoritative.
+                      startsAt: `${date}T${localTime}:00`,
+                    });
+                  }}
                 >
+                  {/* Where the appointment would land. */}
+                  {dropTarget?.staffId === person.id && (
+                    <div
+                      aria-hidden="true"
+                      className="pointer-events-none absolute right-1 left-1 z-10 rounded-[3px] border-2 border-dashed border-gold bg-gold/10"
+                      style={{
+                        top: (dropTarget.minutes - openMinutes) * PX_PER_MINUTE,
+                        height: Math.max(22, dropTarget.durationMinutes * PX_PER_MINUTE),
+                      }}
+                    />
+                  )}
                   {hourMarks.map((m) => (
                     <div
                       key={m}
@@ -239,8 +336,27 @@ export function DayCalendar({
                         <button
                           type="button"
                           onClick={() => setSelected(booking)}
+                          // Completed and missed appointments are history and
+                          // are not draggable.
+                          draggable={
+                            booking.status === "confirmed" ||
+                            booking.status === "pending_payment"
+                          }
+                          onDragStart={(e) => {
+                            dragging.current = booking;
+                            e.dataTransfer.effectAllowed = "move";
+                            // Firefox will not start a drag without some data.
+                            e.dataTransfer.setData("text/plain", booking.reference);
+                          }}
+                          onDragEnd={() => {
+                            dragging.current = null;
+                            setDropTarget(null);
+                          }}
                           className={cn(
                             "absolute right-1 left-1 cursor-pointer overflow-hidden rounded-[3px] border px-2 py-1 text-left text-[12px] transition-colors",
+                            (booking.status === "confirmed" ||
+                              booking.status === "pending_payment") &&
+                              "cursor-grab active:cursor-grabbing",
                             booking.status === "confirmed" &&
                               "border-ink bg-ink text-sand hover:bg-ink-hover",
                             booking.status === "pending_payment" &&
@@ -274,10 +390,20 @@ export function DayCalendar({
         </div>
       )}
 
-      <p className="mt-4 text-[13px] text-muted">
-        Select an appointment to see its details. Dragging to reschedule is not
-        wired up yet — use the reschedule action in the panel.
+      <p className="mt-4 text-[13px] leading-[1.6] text-muted">
+        Click an appointment for its details, or drag it to another time or
+        column to move it. Drops snap to {slotIntervalMinutes} minutes, and
+        nothing moves until you confirm. Dragging needs a mouse or trackpad —
+        on a touch screen, use the reschedule action in the panel.
       </p>
+
+      {pendingMove && (
+        <ConfirmMove
+          move={pendingMove}
+          timezone={timezone}
+          onClose={() => setPendingMove(null)}
+        />
+      )}
 
       {selected && (
         <BookingPanel
@@ -286,6 +412,114 @@ export function DayCalendar({
           onClose={() => setSelected(null)}
         />
       )}
+    </div>
+  );
+}
+
+/**
+ * Confirmation before a drag actually moves anything.
+ *
+ * A drag is easy to do by accident, and moving a paid appointment emails the
+ * customer — so the dialog states who is affected, what they have paid, and
+ * where it is going, before anything happens. The server re-validates the slot
+ * regardless: this is about intent, not about correctness.
+ */
+function ConfirmMove({
+  move,
+  timezone,
+  onClose,
+}: {
+  move: {
+    booking: BookingRow;
+    staffId: string;
+    staffName: string;
+    startsAt: string;
+    localTime: string;
+  };
+  timezone: string;
+  onClose: () => void;
+}) {
+  const [state, action, pending] = useActionState<ActionResult | null, FormData>(
+    studioRescheduleAction,
+    null,
+  );
+
+  const { booking } = move;
+  const customer = booking.profile
+    ? `${booking.profile.first_name} ${booking.profile.last_name}`.trim()
+    : "the client";
+  const paid = booking.deposit_paid_pence > 0;
+  const movingStylist = booking.staff_id !== move.staffId;
+
+  return (
+    <div className="fixed inset-0 z-60 flex items-center justify-center p-5">
+      <div
+        onClick={onClose}
+        aria-hidden="true"
+        className="absolute inset-0 bg-[rgba(33,49,38,0.34)]"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-move-title"
+        className="relative w-full max-w-[460px] rounded-[6px] border border-line bg-cream px-6 py-6 shadow-[0_18px_44px_rgba(33,49,38,0.18)]"
+      >
+        <h2 id="confirm-move-title" className="mb-2 font-serif text-[24px]">
+          Move this appointment?
+        </h2>
+
+        {state?.message ? (
+          <>
+            <p role="status" className="mb-5 text-[15px] leading-[1.7] text-moss">
+              {state.message}
+            </p>
+            <Button type="button" onClick={onClose}>
+              Done
+            </Button>
+          </>
+        ) : (
+          <>
+            <p className="mb-4 text-[15px] leading-[1.7] text-muted">
+              {booking.service?.name} for {customer}, currently{" "}
+              {formatTime(booking.starts_at, timezone)}
+              {movingStylist ? "" : ""}, moving to{" "}
+              <strong className="text-ink">{move.localTime}</strong>
+              {movingStylist && (
+                <>
+                  {" "}
+                  with <strong className="text-ink">{move.staffName}</strong>
+                </>
+              )}
+              .
+            </p>
+
+            {paid && (
+              <p className="mb-4 rounded-[6px] border border-gold px-4 py-3 text-[14px] leading-[1.7] text-muted">
+                {customer} has paid a {formatPence(booking.deposit_paid_pence)}{" "}
+                deposit. Moving it emails them the new time.
+              </p>
+            )}
+
+            {state?.error && (
+              <p role="alert" className="mb-4 text-[14px] text-[#B4483C]">
+                {state.error}
+              </p>
+            )}
+
+            <form action={action} className="flex flex-wrap gap-2">
+              <input type="hidden" name="bookingId" value={booking.id} />
+              <input type="hidden" name="staffId" value={move.staffId} />
+              <input type="hidden" name="startsAt" value={move.startsAt} />
+              <Button type="submit" disabled={pending}>
+                {pending ? "Moving…" : "Move it"}
+              </Button>
+              <Button type="button" variant="outline" onClick={onClose}>
+                Leave it
+              </Button>
+            </form>
+          </>
+        )}
+      </div>
     </div>
   );
 }
