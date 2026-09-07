@@ -4,6 +4,8 @@ import { PageHeader } from "@/components/sections/PageHeader";
 import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { appUrl } from "@/lib/env";
+import { SlotImage } from "@/components/sections/SlotImage";
+import { GALLERY_SLOTS, gallerySlot, getSiteImages } from "@/lib/images";
 import { getGallery, getServices } from "@/lib/salon";
 
 export const metadata: Metadata = {
@@ -22,7 +24,16 @@ export const revalidate = 300;
  * not a convention this page is trusted to follow.
  */
 export default async function GalleryPage() {
-  const [photos, services] = await Promise.all([getGallery(24), getServices()]);
+  const [photos, services, images] = await Promise.all([
+    getGallery(24),
+    getServices(),
+    getSiteImages(),
+  ]);
+
+  // Salon photography, separate from the consent-gated before/after set.
+  const salonShots = Array.from({ length: GALLERY_SLOTS }, (_, i) =>
+    images.get(gallerySlot(i + 1)),
+  ).filter((img) => img !== undefined);
   const serviceName = new Map(services.map((s) => [s.id, s.name]));
 
   return (
@@ -36,6 +47,31 @@ export default async function GalleryPage() {
         />
 
         <div className="mx-auto max-w-[1280px] px-5 py-14 md:px-10 lg:py-20">
+          {salonShots.length > 0 && (
+            <section className="mb-14">
+              <h2 className="mb-5 text-[13px] tracking-[0.12em] text-sage uppercase">
+                The salon
+              </h2>
+              <ul className="grid grid-cols-2 gap-[18px] lg:grid-cols-4">
+                {salonShots.map((image, i) => (
+                  <li key={image!.slot}>
+                    <SlotImage
+                      image={image}
+                      placeholderLabel="salon"
+                      stripe={i % 2 === 0 ? "stripe-warm" : "stripe-deep"}
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="aspect-3/4 rounded-[6px]"
+                    />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
+
+          <h2 className="mb-5 text-[13px] tracking-[0.12em] text-sage uppercase">
+            Before and after
+          </h2>
+
           {photos.length === 0 ? (
             // Honest empty state: placeholder tiles matching the design, clearly
             // labelled as such rather than dressed up as real work.

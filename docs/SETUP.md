@@ -179,3 +179,27 @@ days. Check `staff_schedules` and `opening_hours`.
 
 **`npm test` skips the database tests** — that is by design when nothing is
 listening on `DATABASE_URL`. Run `./scripts/db-test.sh` first.
+
+
+## Photography
+
+The site reads its photographs from the `site_images` table, managed at
+**/studio/photos**.
+
+**No setup needed:** commit images to `public/photos/` and point each slot at
+`/photos/<name>.jpg` using the "Use a path" tab. This works immediately, with
+no storage bucket and no credentials.
+
+**For uploads from Studio**, create the storage bucket once:
+
+1. Supabase dashboard → Storage → New bucket
+2. Name it `site-images`
+3. Mark it **public** — these are photographs on a public website
+4. Leave the file size limit at the default; the app refuses anything over 8 MB
+
+Uploads are stored as `<salon-id>/<slot>-<timestamp>.<ext>`. Replacing a
+photograph writes a new object rather than overwriting, so a cached copy of the
+old one cannot linger at the same URL.
+
+If the bucket does not exist, the upload says so plainly and points at the path
+route instead — nothing breaks.

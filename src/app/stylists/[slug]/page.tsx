@@ -6,6 +6,8 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
+import { SlotImage } from "@/components/sections/SlotImage";
+import { getSiteImages, stylistSlot } from "@/lib/images";
 import { formatPrice } from "@/lib/money";
 import {
   getNextAvailableSlot,
@@ -57,9 +59,10 @@ export default async function StylistPage({
   const person = await getStaffBySlug(slug);
   if (!person) notFound();
 
-  const [salon, services] = await Promise.all([
+  const [salon, services, images] = await Promise.all([
     getSalon(),
     getStaffServices(person.id),
+    getSiteImages(),
   ]);
 
   // Next availability for this stylist's first bookable service, so the page
@@ -114,11 +117,14 @@ export default async function StylistPage({
 
         <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-12 px-5 py-14 md:px-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20 lg:py-20">
           <div>
-            <div className="stripe-deep flex h-[380px] items-end justify-center rounded-t-[180px] rounded-b-[6px] pb-[26px] lg:h-[460px]">
-              <span className="font-mono text-[11px] tracking-[0.12em] text-sage uppercase">
-                stylist portrait
-              </span>
-            </div>
+            <SlotImage
+              image={images.get(stylistSlot(person.slug))}
+              placeholderLabel="stylist portrait"
+              stripe="stripe-deep"
+              priority
+              sizes="(max-width: 1024px) 100vw, 460px"
+              className="h-[380px] rounded-t-[180px] rounded-b-[6px] lg:h-[460px]"
+            />
 
             {person.specialties.length > 0 && (
               <>

@@ -2,6 +2,8 @@ import {
   BookNowButton,
   ViewAvailabilityButton,
 } from "@/components/BookNowButton";
+import { SlotImage } from "@/components/sections/SlotImage";
+import { getSiteImages, SLOTS } from "@/lib/images";
 
 const PROMISES = [
   {
@@ -15,7 +17,9 @@ const PROMISES = [
   },
 ];
 
-export function Hero() {
+export async function Hero() {
+  const images = await getSiteImages();
+
   return (
     <section id="top" className="relative overflow-hidden bg-sand">
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-16 px-5 pt-16 pb-20 md:px-10 lg:grid-cols-2 lg:gap-[72px] lg:pt-24 lg:pb-[104px]">
@@ -57,11 +61,15 @@ export function Hero() {
 
         <div className="relative animate-fade-up-slow">
           <div className="rounded-t-[260px] rounded-b-[8px] border border-gold p-2.5">
-            <div className="stripe-warm flex h-[400px] items-end justify-center rounded-t-[250px] rounded-b-[4px] pb-[34px] md:h-[520px] lg:h-[560px]">
-              <span className="font-mono text-[11px] tracking-[0.12em] text-sage uppercase">
-                editorial salon photograph
-              </span>
-            </div>
+            <SlotImage
+              image={images.get(SLOTS.hero.key)}
+              placeholderLabel="editorial salon photograph"
+              // The hero is the largest thing above the fold, so it loads
+              // eagerly rather than waiting for the lazy-load threshold.
+              priority
+              sizes="(max-width: 1024px) 100vw, 640px"
+              className="h-[400px] rounded-t-[250px] rounded-b-[4px] md:h-[520px] lg:h-[560px]"
+            />
           </div>
 
           <div className="relative mx-auto -mt-10 w-full max-w-[300px] rounded-[6px] border border-line bg-cream px-6 py-[22px] shadow-[0_18px_44px_rgba(33,49,38,0.10)] lg:absolute lg:-left-14 lg:bottom-16 lg:mt-0 lg:w-[300px] lg:max-w-none">

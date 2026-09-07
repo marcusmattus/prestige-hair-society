@@ -1,18 +1,24 @@
+import { SlotImage } from "@/components/sections/SlotImage";
+import { getSiteImages, SLOTS } from "@/lib/images";
+
 const STATS = [
   { value: "12", label: "Years in Battersea" },
   { value: "6", label: "Specialist stylists" },
   { value: "4.9", label: "Average rating" },
 ];
 
-export function Salon() {
+export async function Salon() {
+  const images = await getSiteImages();
+
   return (
     <section id="salon" className="bg-sand">
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-center gap-14 px-5 py-[72px] md:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-[104px]">
-        <div className="stripe-warm flex h-[420px] items-end justify-center rounded-t-[220px] rounded-b-[6px] pb-[30px] lg:h-[520px]">
-          <span className="font-mono text-[11px] tracking-[0.12em] text-sage uppercase">
-            salon interior
-          </span>
-        </div>
+        <SlotImage
+          image={images.get(SLOTS.salonInterior.key)}
+          placeholderLabel="salon interior"
+          sizes="(max-width: 1024px) 100vw, 520px"
+          className="h-[420px] rounded-t-[220px] rounded-b-[6px] lg:h-[520px]"
+        />
 
         <div>
           <div className="mb-5 text-[12px] tracking-[0.22em] text-sage uppercase">

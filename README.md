@@ -101,7 +101,7 @@ mail, so a replayed webhook cannot alert twice.
 npm run typecheck     # clean
 npm run lint          # clean
 npm run build         # clean
-npm test              # 182 tests
+npm test              # 192 tests
 npm run db:test       # 13 constraint groups + 8 RLS groups against real Postgres
 npm run db:demo       # local database with fictional people and appointments
 npm run test:e2e      # 24 Playwright specs, desktop and mobile
@@ -128,8 +128,27 @@ every row is flagged `needs_review`, which surfaces as a prompt in
 documented rule: 25% rounded up to the nearest £5, minimum £10, capped at £75.
 
 Still placeholders, and still labelled as such on the public pages: opening
-hours, the postcode and coordinates, and photography (striped blocks, as in the
-original design).
+hours, and the postcode and coordinates.
+
+## Photography
+
+Every image slot on the public site — the hero, the salon interior, stylist
+portraits and the gallery — is a row in `site_images`, managed from
+**Studio → Photos**. A slot with no row keeps the striped placeholder from the
+original design, so photographs can be added one at a time without the site
+ever looking half-finished.
+
+Two routes, and the second needs nothing configured:
+
+- **Upload** to Supabase Storage (bucket `site-images`, public). What the salon
+  uses day to day.
+- **Path** — commit files to `public/photos/` and point a slot at
+  `/photos/whatever.jpg`. Works with no storage bucket and no credentials.
+
+Each image carries alt text (required — it is read aloud to screen-reader
+users) and a focal point, so a crop keeps the subject rather than the centre.
+Stored URLs are validated before they reach an `img src`: site-relative paths
+and https only, never `javascript:`, `data:` or protocol-relative.
 
 `supabase/seed.sql` is the production-safe base — salon, hours, tags, message
 templates. `supabase/local/01_test_fixtures.sql` is the placeholder catalogue

@@ -5,6 +5,8 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
+import { SlotImage } from "@/components/sections/SlotImage";
+import { getSiteImages, stylistSlot } from "@/lib/images";
 import { getSalon, getStaff } from "@/lib/salon";
 
 export const metadata: Metadata = {
@@ -17,7 +19,11 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function StylistsPage() {
-  const [salon, staff] = await Promise.all([getSalon(), getStaff()]);
+  const [salon, staff, images] = await Promise.all([
+    getSalon(),
+    getStaff(),
+    getSiteImages(),
+  ]);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -61,11 +67,13 @@ export default async function StylistsPage() {
                     className="group block"
                     aria-label={`${person.display_name}, ${person.title ?? "stylist"}`}
                   >
-                    <div className="stripe-deep flex h-[340px] items-end justify-center rounded-t-[180px] rounded-b-[6px] pb-[26px] transition-opacity group-hover:opacity-90 lg:h-[400px]">
-                      <span className="font-mono text-[11px] tracking-[0.12em] text-sage uppercase">
-                        stylist portrait
-                      </span>
-                    </div>
+                    <SlotImage
+                      image={images.get(stylistSlot(person.slug))}
+                      placeholderLabel="stylist portrait"
+                      stripe="stripe-deep"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+                      className="h-[340px] rounded-t-[180px] rounded-b-[6px] transition-opacity group-hover:opacity-90 lg:h-[400px]"
+                    />
                     <h2 className="mt-[22px] mb-1.5 font-serif text-[26px] font-normal group-hover:text-gold">
                       {person.display_name}
                     </h2>

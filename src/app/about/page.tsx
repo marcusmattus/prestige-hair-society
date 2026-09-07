@@ -5,6 +5,8 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
+import { SlotImage } from "@/components/sections/SlotImage";
+import { getSiteImages, SLOTS } from "@/lib/images";
 import { getSalon, getStaff } from "@/lib/salon";
 
 export const metadata: Metadata = {
@@ -36,7 +38,11 @@ const PRINCIPLES = [
 ];
 
 export default async function AboutPage() {
-  const [salon, staff] = await Promise.all([getSalon(), getStaff()]);
+  const [salon, staff, images] = await Promise.all([
+    getSalon(),
+    getStaff(),
+    getSiteImages(),
+  ]);
 
   return (
     <>
@@ -52,11 +58,18 @@ export default async function AboutPage() {
         />
 
         <div className="mx-auto grid max-w-[1280px] grid-cols-1 items-start gap-14 px-5 py-14 md:px-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:py-20">
-          <div className="stripe-warm flex h-[420px] items-end justify-center rounded-t-[220px] rounded-b-[6px] pb-[30px] lg:h-[520px]">
-            <span className="font-mono text-[11px] tracking-[0.12em] text-sage uppercase">
-              salon interior
-            </span>
-          </div>
+          <SlotImage
+            // Falls back to the homepage interior shot, so one photograph
+            // serves both pages until the salon supplies a second.
+            image={
+              images.get(SLOTS.aboutInterior.key) ??
+              images.get(SLOTS.salonInterior.key)
+            }
+            placeholderLabel="salon interior"
+            priority
+            sizes="(max-width: 1024px) 100vw, 520px"
+            className="h-[420px] rounded-t-[220px] rounded-b-[6px] lg:h-[520px]"
+          />
 
           <div>
             <h2 className="mb-6 font-serif text-[34px] leading-[1.12] font-light md:text-[40px]">

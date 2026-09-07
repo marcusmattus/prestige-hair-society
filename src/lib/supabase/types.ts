@@ -1714,6 +1714,69 @@ export type Database = {
           },
         ];
       };
+      site_images: {
+        Row: {
+          id: string;
+          salon_id: string;
+          slot: string;
+          url: string;
+          alt: string;
+          focal_x: number;
+          focal_y: number;
+          caption: string | null;
+          display_order: number;
+          is_active: boolean;
+          uploaded_by: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          salon_id: string;
+          slot: string;
+          url: string;
+          alt?: string;
+          focal_x?: number;
+          focal_y?: number;
+          caption?: string | null;
+          display_order?: number;
+          is_active?: boolean;
+          uploaded_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          salon_id?: string;
+          slot?: string;
+          url?: string;
+          alt?: string;
+          focal_x?: number;
+          focal_y?: number;
+          caption?: string | null;
+          display_order?: number;
+          is_active?: boolean;
+          uploaded_by?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "site_images_salon_id_fkey";
+            columns: ["salon_id"];
+            isOneToOne: false;
+            referencedRelation: "salons";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "site_images_uploaded_by_fkey";
+            columns: ["uploaded_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       slot_holds: {
         Row: {
           id: string;

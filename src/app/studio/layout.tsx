@@ -25,6 +25,7 @@ const NAV = [
   { href: "/studio/messages", label: "Messages", managerOnly: false },
   { href: "/studio/services", label: "Services", managerOnly: true },
   { href: "/studio/stylists", label: "Stylists", managerOnly: true },
+  { href: "/studio/photos", label: "Photos", managerOnly: true },
   { href: "/studio/availability", label: "Availability", managerOnly: true },
   { href: "/studio/payments", label: "Payments", managerOnly: true },
   { href: "/studio/reports", label: "Reports", managerOnly: true },
