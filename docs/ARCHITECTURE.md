@@ -122,9 +122,11 @@ src/
     time.ts            salon-timezone formatting
     audit.ts           append-only, redacting
 supabase/
-  migrations/          0001–0012
+  migrations/          0001–0014
   local/               PostgreSQL shim + SQL test suites
-  seed.sql
+  seed.sql             salon, hours, tags, message templates
+  catalogue.sql        the real 77-service catalogue
+  photos.sql           the salon's photographs, pointed at public/photos/
 ```
 
 ## Time

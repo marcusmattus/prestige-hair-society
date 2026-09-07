@@ -5,7 +5,8 @@ Target: Vercel, with Supabase as the database and Stripe for payments.
 ## 1. Supabase (production project)
 
 Use a **separate project** from development. Apply the migrations in
-`supabase/migrations/` in numerical order, then `supabase/seed.sql`.
+`supabase/migrations/` in numerical order, then `supabase/seed.sql`,
+`supabase/catalogue.sql` and `supabase/photos.sql`.
 
 Before going live, in the Supabase dashboard:
 

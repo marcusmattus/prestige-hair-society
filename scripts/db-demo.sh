@@ -11,6 +11,7 @@ export PGHOST="${PGHOST:-/var/run/postgresql}"
 "$ROOT/scripts/db-reset.sh" "$DB"
 psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/seed.sql"
 psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/catalogue.sql"
+psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/photos.sql"
 psql -v ON_ERROR_STOP=1 --quiet -d "$DB" -f "$ROOT/supabase/local/04_demo_data.sql"
 
 echo

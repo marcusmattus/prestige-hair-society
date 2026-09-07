@@ -150,6 +150,15 @@ users) and a focal point, so a crop keeps the subject rather than the centre.
 Stored URLs are validated before they reach an `img src`: site-relative paths
 and https only, never `javascript:`, `data:` or protocol-relative.
 
+The salon's own photographs of 2 Queens Road are in `public/photos/` and wired
+up by `supabase/photos.sql` — the hero, the salon interior and four gallery
+slots. **They are downscaled copies**, the largest 310px wide against a hero
+that wants 900×1200, so they will look soft until the originals replace them;
+that is a file swap in `public/photos/` or an upload in Studio → Photos, and
+nothing else. No portrait of Nekeia was supplied, so `stylist:nekeia-griffith`
+still shows its placeholder rather than a photograph of a room standing in for
+a person.
+
 `supabase/seed.sql` is the production-safe base — salon, hours, tags, message
 templates. `supabase/local/01_test_fixtures.sql` is the placeholder catalogue
 the SQL suites are written against; it describes nothing real.
@@ -167,7 +176,7 @@ Listed here rather than left to be discovered:
 
 - The Slick importer covers services and their categories; staff, customers,
   appointments and opening hours are still a SQL job
-- Photo upload UI and gift-card redemption at checkout
+- Gift-card redemption at checkout
 - Stripe Payment Element driven end to end in CI
 - Calendar drag-and-drop needs a mouse or trackpad; HTML5 drag events do not
   fire on touch, so the reschedule action in the detail panel remains the way

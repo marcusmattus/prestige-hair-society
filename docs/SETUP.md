@@ -40,16 +40,24 @@ npx supabase link --project-ref <your-ref>
 npx supabase db push
 ```
 
-Then seed the catalogue:
+Then seed, in this order:
 
 ```bash
-psql "$SUPABASE_DB_URL" -f supabase/seed.sql
+psql "$SUPABASE_DB_URL" -f supabase/seed.sql       # salon, hours, tags, templates
+psql "$SUPABASE_DB_URL" -f supabase/catalogue.sql  # the real 77-service catalogue
+psql "$SUPABASE_DB_URL" -f supabase/photos.sql     # the salon's own photographs
 ```
 
-The seed creates the salon, opening hours, eight services, four add-ons, six
-fictional stylists with rosters and breaks, client tags and all thirteen
-message templates. **Every price and opening hour in it is a placeholder** —
-see [SLICK_MIGRATION.md](./SLICK_MIGRATION.md).
+All three are idempotent — rerunning updates rather than duplicates.
+
+`catalogue.sql` carries the salon's **verified** prices; its durations, buffers
+and deposits are estimates and every row is flagged `needs_review`. The
+**opening hours in `seed.sql` are still a placeholder**, and the public pages
+say so — see [SLICK_MIGRATION.md](./SLICK_MIGRATION.md).
+
+`photos.sql` points the hero, salon interior and four gallery slots at the
+files in `public/photos/`, so photography works before Supabase Storage exists.
+Replace any of them from **Studio → Photos**.
 
 ### Create the first administrator
 
