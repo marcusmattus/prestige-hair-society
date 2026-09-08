@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Manrope } from "next/font/google";
+import { appUrl } from "@/lib/env";
+import { OG_IMAGE } from "@/lib/seo";
 import "./globals.css";
 
 const cormorant = Cormorant_Garamond({
@@ -18,9 +20,23 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(appUrl),
   title: "Prestige Hair Society — Hair care, elevated to an art.",
   description:
     "A calm, considered salon experience designed around your hair, your routine and how you want to feel. Battersea, London.",
+  icons: {
+    // icon.png is picked up automatically by its filename; the Apple one is
+    // not, and iOS composites onto black, so it keeps its cream ground.
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    type: "website",
+    siteName: "Prestige Hair Society",
+    locale: "en_GB",
+    url: appUrl,
+    images: [OG_IMAGE],
+  },
+  twitter: { card: "summary_large_image", images: [OG_IMAGE.url] },
 };
 
 export default function RootLayout({

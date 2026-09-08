@@ -6,6 +6,7 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
+import { OG_IMAGE } from "@/lib/seo";
 import { SlotImage } from "@/components/sections/SlotImage";
 import { getSiteImages, stylistSlot } from "@/lib/images";
 import { formatPrice } from "@/lib/money";
@@ -46,6 +47,7 @@ export async function generateMetadata({
       description: person.bio ?? undefined,
       url: `${appUrl}/stylists/${person.slug}`,
       type: "profile",
+      images: [OG_IMAGE],
     },
   };
 }

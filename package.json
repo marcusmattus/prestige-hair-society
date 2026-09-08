@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "typecheck": "tsc",
-    "db:demo": "./scripts/db-demo.sh"
+    "db:demo": "./scripts/db-demo.sh",
+    "logo": "node scripts/build-logo.mjs"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

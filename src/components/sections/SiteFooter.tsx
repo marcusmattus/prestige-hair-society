@@ -36,11 +36,11 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-[1280px] grid-cols-1 gap-10 px-5 pt-15 pb-10 sm:grid-cols-2 md:px-10 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <Image
-            src="/logo.jpg"
+            src="/logo.png"
             alt="Prestige Hair Society"
-            width={96}
-            height={96}
-            className="h-24 w-24 object-contain mix-blend-multiply"
+            width={267}
+            height={261}
+            className="h-24 w-24 object-contain"
           />
           <p className="mt-3.5 max-w-[260px] text-[13px] leading-[1.65] text-muted">
             2 Queens Road, Battersea, London

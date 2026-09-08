@@ -5,6 +5,7 @@ import { SiteFooter } from "@/components/sections/SiteFooter";
 import { SiteHeader } from "@/components/sections/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { appUrl } from "@/lib/env";
+import { OG_IMAGE } from "@/lib/seo";
 import { formatPrice } from "@/lib/money";
 import {
   getEligibleStaff,
@@ -41,6 +42,7 @@ export async function generateMetadata({
       description: service.short_description ?? undefined,
       url: `${appUrl}/services/${service.slug}`,
       type: "website",
+      images: [OG_IMAGE],
     },
   };
 }

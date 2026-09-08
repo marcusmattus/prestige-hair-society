@@ -30,12 +30,12 @@ export function SiteHeader({ signedIn = false }: { signedIn?: boolean }) {
           aria-label="Prestige Hair Society — home"
         >
           <Image
-            src="/logo.jpg"
+            src="/logo.png"
             alt="Prestige Hair Society"
-            width={76}
-            height={76}
+            width={267}
+            height={261}
             priority
-            className="h-14 w-14 object-contain mix-blend-multiply lg:h-[76px] lg:w-[76px]"
+            className="h-14 w-14 object-contain lg:h-[76px] lg:w-[76px]"
           />
         </Link>
 

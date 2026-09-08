@@ -130,6 +130,33 @@ documented rule: 25% rounded up to the nearest £5, minimum £10, capped at £75
 Still placeholders, and still labelled as such on the public pages: opening
 hours, and the postcode and coordinates.
 
+## The logo
+
+`public/logo.jpg` is the mark as supplied: a screenshot, with the logo sitting
+on a baked-in cream card. The header and footer used to hide that with
+`mix-blend-multiply`, which works only because both happen to be cream and
+fails anywhere else — a dark section, an email, a social card.
+
+`npm run logo` derives real assets from it instead. The cream is not keyed out
+by threshold but unmixed: `mix-blend-multiply` on a light ground is a known
+compositing equation, so reading it backwards recovers coverage and colour
+with the antialiased edges intact. Outputs, all committed:
+
+| | |
+| --- | --- |
+| `public/logo.png` | Transparent. Header and footer. |
+| `public/logo-light.png` | Cream, for dark backgrounds. |
+| `public/apple-touch-icon.png` | 180×180 on cream — iOS composites onto black. |
+| `public/og.jpg` | 1200×630 social card. |
+| `src/app/icon.png` | Favicon. |
+
+Nothing is upscaled except the social card, which nobody views at full size.
+The source is 273×267, which covers a 76px header logo at 3× and every icon
+size, but it is a screenshot: **if the original vector exists** — from whoever
+designed the mark — it belongs in the repository, and `logo.png` and the rest
+should be regenerated from it. That is the one asset that would improve the
+site's typography at every size at once.
+
 ## Photography
 
 Every image slot on the public site — the hero, the salon interior, stylist
