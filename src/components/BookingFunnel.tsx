@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SERVICES, TIMES, pounds } from "@/lib/services";
 
 type Details = { firstName:string; lastName:string; email:string; phone:string; notes:string; updates:boolean; agreed:boolean };
@@ -19,9 +19,13 @@ export function BookingFunnel() {
   const [date,setDate] = useState(nextDate());
   const [time,setTime] = useState("10:00");
   const [details,setDetails] = useState<Details>({firstName:"",lastName:"",email:"",phone:"",notes:"",updates:true,agreed:false});
+  const [payMode,setPayMode] = useState<"deposit"|"full">("deposit");
   const [loading,setLoading] = useState(false);
   const [error,setError] = useState("");
-  const bookingId = useRef(globalThis.crypto?.randomUUID?.() || `phs-${Date.now()}`);
+  const bookingId = useRef("");
+  // Generate the client booking id after mount: crypto/Date.now are impure and
+  // must not run during render. It is only read once checkout is submitted.
+  useEffect(() => { if (!bookingId.current) bookingId.current = globalThis.crypto?.randomUUID?.() || `phs-${Date.now()}`; }, []);
   const service = SERVICES.find(s=>s.id===serviceId) || SERVICES[0];
 
   const filtered = useMemo(() => SERVICES.filter(item =>
@@ -34,9 +38,10 @@ export function BookingFunnel() {
 
   async function checkout() {
     if (!ready) return;
+    if (!bookingId.current) bookingId.current = globalThis.crypto?.randomUUID?.() || `phs-${Date.now()}`;
     setLoading(true); setError("");
     try {
-      const response = await fetch("/api/checkout", { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({bookingId:bookingId.current,serviceId,date,time,...details}) });
+      const response = await fetch("/api/checkout", { method:"POST", headers:{"content-type":"application/json"}, body:JSON.stringify({bookingId:bookingId.current,serviceId,date,time,payment:payMode,...details}) });
       const data = await response.json();
       if (!response.ok || !data.url) throw new Error(data.error || "Unable to open secure checkout");
       window.location.assign(data.url);
@@ -76,6 +81,11 @@ export function BookingFunnel() {
       <div style={{display:"flex",justifyContent:"space-between",gap:12,marginTop:28}}>{step>1?<button className="button alt" onClick={()=>setStep(step-1)}>Back</button>:<span/>}{step<3?<button className="button" onClick={()=>setStep(step+1)}>Continue</button>:null}</div>
     </div>
 
-    <aside className="summary"><span className="eyebrow">Booking summary</span><h3>{service.name}</h3><dl><div><dt>Service price</dt><dd>{pounds(service.price)}</dd></div><div><dt>Deposit hold</dt><dd>{pounds(service.deposit)}</dd></div><div><dt>Balance in salon</dt><dd>{pounds(service.price-service.deposit)}</dd></div><div><dt>Requested time</dt><dd>{date}<br/>{time}</dd></div><div className="total"><dt>Due today</dt><dd>{pounds(service.deposit)} hold</dd></div></dl>{step===3&&<button className="button" disabled={!ready||loading} onClick={checkout}>{loading?"Opening secure checkout…":`Secure ${pounds(service.deposit)} deposit`}</button>}<p className="secure"><span>◆</span><span>Secure Stripe Checkout supports cards, Apple Pay and Google Pay when available. This is an authorisation hold, not a legal escrow account.</span></p></aside>
+    <aside className="summary"><span className="eyebrow">Booking summary</span><h3>{service.name}</h3><dl><div><dt>Service price</dt><dd>{pounds(service.price)}</dd></div><div><dt>Deposit hold</dt><dd>{pounds(service.deposit)}</dd></div><div><dt>Balance in salon</dt><dd>{payMode==="full"?pounds(0):pounds(service.price-service.deposit)}</dd></div><div><dt>Requested time</dt><dd>{date}<br/>{time}</dd></div><div className="total"><dt>Due today</dt><dd>{payMode==="full"?`${pounds(service.price)} paid`:`${pounds(service.deposit)} hold`}</dd></div></dl>
+      {step===3&&<div className="pay-mode" role="radiogroup" aria-label="Payment option" style={{display:"grid",gap:8,margin:"4px 0 14px"}}>
+        <button type="button" role="radio" aria-checked={payMode==="deposit"} className={`service ${payMode==="deposit"?"active":""}`} onClick={()=>setPayMode("deposit")}><span><strong>Secure a deposit</strong><small>Pay {pounds(service.deposit)} now · balance at the studio</small></span></button>
+        <button type="button" role="radio" aria-checked={payMode==="full"} className={`service ${payMode==="full"?"active":""}`} onClick={()=>setPayMode("full")}><span><strong>Pay in full</strong><small>Pay {pounds(service.price)} now · nothing at the studio</small></span></button>
+      </div>}
+      {step===3&&<button className="button" disabled={!ready||loading} onClick={checkout}>{loading?"Opening secure checkout…":payMode==="full"?`Pay ${pounds(service.price)} now`:`Secure ${pounds(service.deposit)} deposit`}</button>}<p className="secure"><span>◆</span><span>Secure Stripe Checkout supports cards, Apple Pay and Google Pay when available. A deposit is an authorisation hold, not a legal escrow account.</span></p></aside>
   </div>;
 }

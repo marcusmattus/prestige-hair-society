@@ -65,6 +65,57 @@ Photography is rendered as striped blocks (`stripe-warm` / `stripe-deep` in
 `globals.css`), stylists are unnamed, and prices and opening hours are
 placeholders pending the verified salon data — all as flagged in the design.
 
+## Integrations
+
+### Stripe payments (`/api/checkout`, `/api/stripe/webhook`)
+
+The booking funnel opens a Stripe Checkout session. Step 3 offers two options:
+
+- **Secure a deposit** — authorises a deposit hold (`capture_method: manual`),
+  captured only once the studio approves the appointment.
+- **Pay in full** — charges the full service price immediately.
+
+The `checkout.session.completed` webhook emails the client (and
+`BOOKINGS_EMAIL`) their confirmation via Resend, reflecting which option was
+chosen.
+
+### Calendly + calendar links (`/api/calendar`, `src/lib/calendly.ts`)
+
+- **Add to calendar** — `/api/calendar` returns an RFC 5545 `.ics` for the
+  requested slot (Europe/London), linked from the success page and the
+  confirmation email.
+- **Book a consultation** — a Calendly link (`NEXT_PUBLIC_CALENDLY_URL`) is
+  surfaced on the homepage, the success page and the email, pre-filled with the
+  client's name and email where known.
+
+### CRM email distribution (`/api/crm/distribution`)
+
+Sends a consent-aware marketing broadcast to clients with
+`profiles.marketing_email = true`. Every send is logged to
+`message_deliveries` with an idempotency key of `campaign:<id>:<profile>`, so a
+re-run resumes rather than double-mails. Authenticated with the `CRON_SECRET`
+Bearer token; supports `testRecipients` and `dryRun`.
+
+```bash
+curl -X POST "$APP_URL/api/crm/distribution" \
+  -H "authorization: Bearer $CRON_SECRET" \
+  -H "content-type: application/json" \
+  -d '{"campaignId":"autumn-2026","subject":"Autumn hair, refreshed",
+       "heading":"A new season for your hair",
+       "bodyHtml":"<p>Hi {{firstName}}, book your autumn refresh…</p>"}'
+```
+
+### Environment variables
+
+| Variable | Purpose |
+| --- | --- |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe checkout + webhook |
+| `RESEND_API_KEY`, `EMAIL_FROM` | Transactional and campaign email |
+| `BOOKINGS_EMAIL` | Internal copy of each booking request |
+| `CRON_SECRET` | Authenticates `/api/crm/distribution` and cron routes |
+| `NEXT_PUBLIC_CALENDLY_URL` | Consultation booking link (default: the connected account's 30-min event) |
+| `NEXT_PUBLIC_CALENDLY_SCHEDULING_URL` | The Calendly account page |
+
 ## Design source
 
 `project/Prestige Hair Society.dc.html` is the original Claude Design prototype
