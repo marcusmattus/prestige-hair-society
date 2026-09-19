@@ -1636,7 +1636,7 @@ export type Database = {
       import_status: "draft" | "previewed" | "applied" | "rolled_back" | "failed";
       message_channel: "email" | "sms";
       message_delivery_status: "queued" | "sent" | "delivered" | "failed" | "skipped";
-      message_kind: "booking_confirmation" | "deposit_receipt" | "appointment_reminder" | "reschedule_confirmation" | "cancellation_confirmation" | "waitlist_availability" | "payment_failure" | "refund_confirmation" | "post_appointment_thanks" | "review_request" | "rebooking_reminder";
+      message_kind: "booking_confirmation" | "deposit_receipt" | "appointment_reminder" | "reschedule_confirmation" | "cancellation_confirmation" | "waitlist_availability" | "payment_failure" | "refund_confirmation" | "post_appointment_thanks" | "review_request" | "rebooking_reminder" | "marketing_campaign";
       payment_kind: "deposit" | "balance" | "full" | "in_salon";
       payment_status: "requires_payment" | "processing" | "succeeded" | "failed" | "refunded" | "partially_refunded" | "disputed";
       pricing_mode: "fixed" | "from";
