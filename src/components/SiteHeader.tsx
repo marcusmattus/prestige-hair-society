@@ -13,7 +13,7 @@ export function SiteHeader() {
         <Link href="/#book">Book</Link>
         <Link href="/memberships">Memberships &amp; Programmes</Link>
         <Link href="/#studio">Studio</Link>
-        <Link href="/#visit">Visit</Link>
+        <Link href="/account">My account</Link>
       </nav>
       <Link className="button" href="/memberships">
         Explore memberships

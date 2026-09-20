@@ -113,6 +113,28 @@ The journey is **Discover → Compare → Hair tier → Payment → Purchase →
   the same. Included visits are prepaid, so the client isn't charged again for a
   covered service.
 
+### Membership account (`/account`, `/sign-in`)
+
+Members sign in passwordlessly (Supabase email OTP at `/sign-in`) to a dashboard
+at `/account`:
+
+- The Stripe webhook writes each purchase to the `memberships` table (migration
+  `0014_memberships.sql`), linking the buyer's profile by email where one exists.
+- On dashboard load, any guest purchases made with the signed-in email are
+  claimed to the account, then read back under RLS (a customer sees only their
+  own rows; staff read all; managers may correct visit counts).
+- The dashboard shows, per programme: status, **appointments N / total**,
+  **remaining visits**, **next appointment**, and **payment plan**, with **Book
+  Next Visit**, **Reschedule** and **View membership** (Stripe billing portal for
+  subscriptions via `/api/stripe/portal`) actions.
+- `src/middleware.ts` refreshes the Supabase session on each request;
+  `/auth/sign-out` ends it. **My account** is in the main nav, and the success
+  page + confirmation email link to `/account`.
+
+> Booking-side prepaid-visit recognition (auto-decrementing `completed_visits`
+> and setting `next_visit_at` when a membership visit is booked/completed) is the
+> next step — the schema and dashboard already carry those fields.
+
 ### CRM email distribution (`/api/crm/distribution`)
 
 Sends a consent-aware marketing broadcast to clients with

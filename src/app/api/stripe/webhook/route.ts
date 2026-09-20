@@ -5,6 +5,7 @@ import { pounds, findService } from "@/lib/services";
 import { poundsLabel, TIER_LABEL, type Tier } from "@/lib/memberships";
 import { appUrl } from "@/lib/env";
 import { sendBookingEmails, sendMembershipEmails } from "@/lib/email";
+import { recordMembershipPurchase } from "@/lib/memberships/store";
 
 export const runtime = "nodejs";
 
@@ -20,6 +21,9 @@ export async function POST(request:Request) {
 
     // Membership / programme purchases (deposit-hold bookings are handled below).
     if (m.type === "membership") {
+      // Persist first so the dashboard has the record even if email is skipped.
+      try { await recordMembershipPurchase(session); }
+      catch (cause) { console.error("membership_persist_error", cause); }
       if (m.email_updates !== "false" && m.email && m.booking_reference) {
         const isMonthly = m.payment === "monthly";
         const planLabel = isMonthly && m.months
@@ -36,6 +40,7 @@ export async function POST(request:Request) {
           visits:m.visits?Number(m.visits):undefined,
           planLabel,
           bookVisitUrl:`${appUrl.replace(/\/$/,"")}/#book`,
+          accountUrl:`${appUrl.replace(/\/$/,"")}/account`,
         });
       }
       return NextResponse.json({received:true});
