@@ -72,9 +72,10 @@ export default async function MembershipSuccess({ searchParams }: { searchParams
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
           <Link className="button" href="/#book">Book Visit 1</Link>
+          <Link className="button alt" href="/account">My membership</Link>
           <a className="button alt" href={consultationHref} target="_blank" rel="noopener noreferrer">Book a consultation</a>
-          <Link className="button alt" href="/memberships">View memberships</Link>
         </div>
+        <p className="secure" style={{ marginTop: 14 }}><span>◆</span><span>Track your programme, appointments and payment plan any time at your membership account — sign in with {session?.customer_details?.email || m.email || "this email"}.</span></p>
         <p className="secure" style={{ marginTop: 18 }}>
           <span>◆</span>
           <span>A confirmation has been sent to {session?.customer_details?.email || m.email || "your email"}. When you book Visit 1, tell us it’s part of {m.programme_name || "your membership"} so the included service isn’t charged again.</span>
