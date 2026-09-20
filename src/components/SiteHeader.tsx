@@ -6,7 +6,7 @@ export function SiteHeader() {
   return (
     <header className="header shell">
       <Link className="brand" href="/#top">
-        <Image src="/prestige-logo.jpg" width={54} height={54} alt="Prestige Hair Society" />
+        <Image src="/prestige-logo.svg" width={54} height={54} alt="Prestige Hair Society" priority />
         <span>Prestige Hair Society</span>
       </Link>
       <nav>
