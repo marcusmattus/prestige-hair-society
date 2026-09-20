@@ -29,7 +29,8 @@ function slug(value: string) {
 }
 
 function depositFor(price: number) {
-  return Math.min(75, Math.max(10, Math.ceil((price * 0.25) / 5) * 5));
+  // A 50% deposit on every booking, rounded to the nearest pound.
+  return Math.round(price * 0.5);
 }
 
 export const SERVICES: Service[] = rows.flatMap(([category, items]) =>
