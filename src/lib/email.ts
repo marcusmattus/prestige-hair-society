@@ -57,3 +57,37 @@ export async function sendBookingEmails(data: BookingEmail) {
   if (admin) messages.push({ from, to: admin, subject: `New booking request ${data.reference}`, html: emailHtml(data) });
   return resend.batch.send(messages);
 }
+
+// ---------------------------------------------------------------------------
+// Membership / programme confirmation
+// ---------------------------------------------------------------------------
+
+export type MembershipEmail = {
+  reference: string;
+  name: string;
+  email: string;
+  programme: string;
+  category: string;
+  tier: string;
+  duration: string;
+  visits?: number;
+  planLabel: string;
+  bookVisitUrl: string;
+};
+
+function membershipHtml(data: MembershipEmail) {
+  const row = (label: string, value: string) => `<tr><td style="padding:9px 0;color:#687067">${label}</td><td style="padding:9px 0;text-align:right;color:#213126">${escape(value)}</td></tr>`;
+  const consult = calendlyConsultationLink({ name: data.name, email: data.email });
+  const button = (href: string, label: string, filled: boolean) => `<a href="${escape(href)}" style="display:inline-block;margin:0 8px 10px 0;padding:12px 22px;border-radius:4px;font-size:14px;text-decoration:none;${filled ? "background:#213126;color:#fbfaf6" : "border:1px solid #af946a;color:#213126"}">${label}</a>`;
+  return `<div style="background:#fbfaf6;padding:36px 18px;font-family:Arial,sans-serif;color:#213126"><div style="max-width:560px;margin:auto;background:#fff;border:1px solid #ded9cd;padding:32px"><p style="font-size:12px;letter-spacing:2px;color:#8f9b7b;text-transform:uppercase">Prestige Memberships &amp; Hair Programmes</p><h1 style="font-family:Georgia,serif;font-weight:400">Welcome to your programme.</h1><p>Hi ${escape(data.name)}, your membership is confirmed. Book your first appointment whenever you're ready — included visits are prepaid, so you won't be charged again for a service your programme covers.</p><table style="width:100%;border-collapse:collapse;margin:24px 0">${row("Reference", data.reference)}${row("Programme", data.programme)}${row("Category", data.category)}${row("Hair tier", data.tier)}${row("Duration", data.duration)}${data.visits ? row("Included visits", String(data.visits)) : ""}${row("Payment", data.planLabel)}</table><div style="margin:24px 0">${button(data.bookVisitUrl, "Book Visit 1", true)}${button(consult, "Book a consultation", false)}</div><p style="line-height:1.6;color:#687067">When you book, mention this is part of your ${escape(data.programme)} membership so the included service is not charged again.</p><p style="margin-top:28px">KOOP Studio<br>2 Queenstown Road<br>London SW8 3RX</p></div></div>`;
+}
+
+export async function sendMembershipEmails(data: MembershipEmail) {
+  if (!process.env.RESEND_API_KEY) return { skipped: true };
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const from = process.env.EMAIL_FROM || "Prestige Hair Society <onboarding@resend.dev>";
+  const admin = process.env.BOOKINGS_EMAIL;
+  const messages = [{ from, to: data.email, subject: `Membership confirmed: ${data.programme} (${data.reference})`, html: membershipHtml(data) }];
+  if (admin) messages.push({ from, to: admin, subject: `New membership ${data.reference}: ${data.programme}`, html: membershipHtml(data) });
+  return resend.batch.send(messages);
+}
