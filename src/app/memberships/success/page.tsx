@@ -71,7 +71,7 @@ export default async function MembershipSuccess({ searchParams }: { searchParams
         </div>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-          <Link className="button" href="/#book">Book Visit 1</Link>
+          <Link className="button" href="/account">Book Visit 1</Link>
           <Link className="button alt" href="/account">My membership</Link>
           <a className="button alt" href={consultationHref} target="_blank" rel="noopener noreferrer">Book a consultation</a>
         </div>
