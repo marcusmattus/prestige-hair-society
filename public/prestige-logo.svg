@@ -1,0 +1,18 @@
+<svg width="120" height="120" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prestige Hair Society">
+  <title>Prestige Hair Society</title>
+  <!-- Ink emblem with a gold keyline ring -->
+  <circle cx="60" cy="60" r="59" fill="#213126"/>
+  <circle cx="60" cy="60" r="51" fill="none" stroke="#af946a" stroke-width="1.25" opacity="0.85"/>
+  <!-- Diamond accents, echoing the site's ◆ motif -->
+  <path d="M60 12 l4 4 -4 4 -4 -4 z" fill="#af946a"/>
+  <path d="M60 100 l4 4 -4 4 -4 -4 z" fill="#af946a"/>
+  <!-- PHS monogram -->
+  <text x="60" y="70" text-anchor="middle" dominant-baseline="middle"
+        font-family="'Iowan Old Style','Palatino Linotype',Palatino,Georgia,serif"
+        font-size="40" font-weight="500" letter-spacing="3" fill="#f7f2e8">PHS</text>
+  <!-- Wordmark arc line under the monogram -->
+  <line x1="34" y1="84" x2="86" y2="84" stroke="#af946a" stroke-width="1" opacity="0.7"/>
+  <text x="60" y="93" text-anchor="middle" dominant-baseline="middle"
+        font-family="Manrope,Avenir,'Segoe UI',Arial,sans-serif"
+        font-size="7" letter-spacing="3" fill="#8f9b7b">EST · LONDON</text>
+</svg>
