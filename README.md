@@ -88,6 +88,31 @@ chosen.
   surfaced on the homepage, the success page and the email, pre-filled with the
   client's name and email where known.
 
+### Memberships & programmes (`/memberships`, `src/lib/memberships.ts`)
+
+Five structured programmes (Cleanse & Sculpt Quarterly Reset, Texture Release
+Longevity & Silk Club, Ultimate Transitioning & Restorative Journey,
+Bio-Pilixin® Cellular Restore, Healthy Scalp & Growth Detox) are defined in
+`src/lib/memberships.ts` — the single source of truth for pricing.
+
+The journey is **Discover → Compare → Hair tier → Payment → Purchase → Book Visit 1**:
+
+- The homepage promotes them in a dedicated section, and **Memberships &
+  Programmes** is in the main nav.
+- `/memberships` shows premium cards with a `SHORT | MEDIUM | LONG` tier
+  selector, a `PAY IN FULL | MONTHLY` payment selector and a live price, plus
+  full per-programme details. A sticky mobile CTA ("Join a membership — from …")
+  keeps the action in reach.
+- Each **JOIN** deep-links to `/memberships/join?programme=…&tier=…&payment=…`,
+  which collects details and starts Stripe Checkout via
+  `/api/checkout/membership` — `mode: payment` for pay-in-full, `mode:
+  subscription` (monthly recurring, instalment count in metadata) for a plan.
+- After payment, `/memberships/success` confirms the membership, shows a
+  read-only account snapshot (active programme, visits, payment plan) and a
+  **Book Visit 1** CTA into the booking funnel. The confirmation email carries
+  the same. Included visits are prepaid, so the client isn't charged again for a
+  covered service.
+
 ### CRM email distribution (`/api/crm/distribution`)
 
 Sends a consent-aware marketing broadcast to clients with
@@ -113,6 +138,7 @@ curl -X POST "$APP_URL/api/crm/distribution" \
 | `RESEND_API_KEY`, `EMAIL_FROM` | Transactional and campaign email |
 | `BOOKINGS_EMAIL` | Internal copy of each booking request |
 | `CRON_SECRET` | Authenticates `/api/crm/distribution` and cron routes |
+| `NEXT_PUBLIC_APP_URL` | App origin, used for absolute links in emails |
 | `NEXT_PUBLIC_CALENDLY_URL` | Consultation booking link (default: the connected account's 30-min event) |
 | `NEXT_PUBLIC_CALENDLY_SCHEDULING_URL` | The Calendly account page |
 

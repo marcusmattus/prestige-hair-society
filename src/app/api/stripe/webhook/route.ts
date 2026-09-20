@@ -2,7 +2,9 @@ import { NextResponse } from "next/server";
 import Stripe from "stripe";
 import { getStripe } from "@/lib/stripe";
 import { pounds, findService } from "@/lib/services";
-import { sendBookingEmails } from "@/lib/email";
+import { poundsLabel, TIER_LABEL, type Tier } from "@/lib/memberships";
+import { appUrl } from "@/lib/env";
+import { sendBookingEmails, sendMembershipEmails } from "@/lib/email";
 
 export const runtime = "nodejs";
 
@@ -15,6 +17,30 @@ export async function POST(request:Request) {
   if (event.type === "checkout.session.completed") {
     const session=event.data.object;
     const m=session.metadata || {};
+
+    // Membership / programme purchases (deposit-hold bookings are handled below).
+    if (m.type === "membership") {
+      if (m.email_updates !== "false" && m.email && m.booking_reference) {
+        const isMonthly = m.payment === "monthly";
+        const planLabel = isMonthly && m.months
+          ? `${poundsLabel(Number(m.amount_now||0))}/month × ${m.months}`
+          : `${poundsLabel(Number(m.total||m.amount_now||0))} paid in full`;
+        await sendMembershipEmails({
+          reference:m.booking_reference,
+          name:`${m.first_name||""} ${m.last_name||""}`.trim(),
+          email:m.email,
+          programme:m.programme_name||"Programme",
+          category:m.category||"",
+          tier:TIER_LABEL[(m.tier as Tier)]||m.tier||"",
+          duration:m.duration||"",
+          visits:m.visits?Number(m.visits):undefined,
+          planLabel,
+          bookVisitUrl:`${appUrl.replace(/\/$/,"")}/#book`,
+        });
+      }
+      return NextResponse.json({received:true});
+    }
+
     if (m.email_updates !== "false" && m.email && m.booking_reference) {
       const paidInFull = m.payment_type === "full";
       const paidAmount = Number(m.amount || m.deposit || 0);
