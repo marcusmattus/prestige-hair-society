@@ -131,9 +131,21 @@ at `/account`:
   `/auth/sign-out` ends it. **My account** is in the main nav, and the success
   page + confirmation email link to `/account`.
 
-> Booking-side prepaid-visit recognition (auto-decrementing `completed_visits`
-> and setting `next_visit_at` when a membership visit is booked/completed) is the
-> next step — the schema and dashboard already carry those fields.
+### Prepaid membership visits
+
+Included visits are prepaid and booked without any charge:
+
+- From `/account`, **Book Next Visit** / **Reschedule** open `/account/book?m=<id>`
+  (`requireUser`-gated). The member picks a slot; **£0 is due**.
+- `/api/membership/visit` verifies ownership server-side, checks a visit is
+  still available (`canBookVisit`), and records the requested slot in
+  `next_visit_at` — no Stripe involved. A confirmation email goes out marked
+  "Included in your membership — no charge".
+- Staff advance the counter with `/api/membership/complete` (managers only),
+  which increments `completed_visits`, clears the booked slot, and marks the
+  membership `completed` once every included visit is used.
+- Europe/London wall-clock times are stored with the correct BST/GMT offset
+  (`src/lib/memberships/visits.ts`).
 
 ### CRM email distribution (`/api/crm/distribution`)
 

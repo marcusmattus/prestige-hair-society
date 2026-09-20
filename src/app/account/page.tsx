@@ -25,7 +25,12 @@ function whenLabel(iso: string | null) {
   return new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London" }).format(date);
 }
 
-export default async function AccountPage() {
+export default async function AccountPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ booked?: string }>;
+}) {
+  const { booked } = await searchParams;
   const user = await requireUser("/account");
   // Link any guest purchases made with this email, then read via RLS.
   await claimMemberships(user.id, user.email);
@@ -53,6 +58,12 @@ export default async function AccountPage() {
             <button className="button alt" type="submit">Sign out</button>
           </form>
         </div>
+
+        {booked ? (
+          <div className="status-box" style={{ marginTop: 24 }}>
+            <strong>Visit requested.</strong> Your prepaid visit is booked and Nekeia will confirm the time. It appears below as your next appointment.
+          </div>
+        ) : null}
 
         {rows.length === 0 ? (
           <div className="join-form" style={{ marginTop: 34, maxWidth: 560 }}>
@@ -105,8 +116,8 @@ export default async function AccountPage() {
                   </dl>
 
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 20 }}>
-                    <Link className="button" href={`/#book?membership=${mb.id}`}>Book Next Visit</Link>
-                    <Link className="button alt" href={`/#book?membership=${mb.id}&reschedule=1`}>Reschedule</Link>
+                    <Link className="button" href={`/account/book?m=${mb.id}`}>Book Next Visit</Link>
+                    <Link className="button alt" href={`/account/book?m=${mb.id}&reschedule=1`}>Reschedule</Link>
                     <a className="button alt" href={viewHref}>View membership</a>
                   </div>
                   {mb.booking_reference ? <p className="prog-detail-note">Reference {mb.booking_reference}. Included visits are prepaid — mention your membership when booking so a covered service isn’t charged again.</p> : null}
