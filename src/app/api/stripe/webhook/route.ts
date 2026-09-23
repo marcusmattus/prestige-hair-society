@@ -6,6 +6,12 @@ import { poundsLabel, TIER_LABEL, type Tier } from "@/lib/memberships";
 import { appUrl } from "@/lib/env";
 import { sendBookingEmails, sendMembershipEmails } from "@/lib/email";
 import { recordMembershipPurchase } from "@/lib/memberships/store";
+import {
+  onInvoicePaid,
+  onInvoicePaymentFailed,
+  onSubscriptionDeleted,
+  onSubscriptionUpdated,
+} from "@/lib/stripe/billing";
 
 export const runtime = "nodejs";
 
@@ -15,20 +21,51 @@ export async function POST(request:Request) {
   let event:Stripe.Event;
   try { event=getStripe().webhooks.constructEvent(await request.text(),signature,process.env.STRIPE_WEBHOOK_SECRET); }
   catch { return NextResponse.json({error:"Invalid signature"},{status:400}); }
-  if (event.type === "checkout.session.completed") {
-    const session=event.data.object;
-    const m=session.metadata || {};
 
-    // Membership / programme purchases (deposit-hold bookings are handled below).
-    if (m.type === "membership") {
-      // Persist first so the dashboard has the record even if email is skipped.
-      try { await recordMembershipPurchase(session); }
-      catch (cause) { console.error("membership_persist_error", cause); }
-      if (m.email_updates !== "false" && m.email && m.booking_reference) {
-        const isMonthly = m.payment === "monthly";
-        const planLabel = isMonthly && m.months
-          ? `${poundsLabel(Number(m.amount_now||0))}/month × ${m.months}`
-          : `${poundsLabel(Number(m.total||m.amount_now||0))} paid in full`;
+  try {
+    switch (event.type) {
+      case "checkout.session.completed":
+        await onCheckoutCompleted(event.data.object);
+        break;
+      // Billing lifecycle for membership instalment subscriptions.
+      case "invoice.paid":
+        await onInvoicePaid(event.data.object);
+        break;
+      case "invoice.payment_failed":
+        await onInvoicePaymentFailed(event.data.object);
+        break;
+      case "customer.subscription.deleted":
+        await onSubscriptionDeleted(event.data.object);
+        break;
+      case "customer.subscription.updated":
+        await onSubscriptionUpdated(event.data.object);
+        break;
+    }
+  } catch (cause) {
+    // Log and 500 so Stripe retries. All handlers are idempotent.
+    console.error(`webhook_error:${event.type}`, cause);
+    return NextResponse.json({ error: "Webhook handler failed" }, { status: 500 });
+  }
+
+  return NextResponse.json({received:true});
+}
+
+async function onCheckoutCompleted(session: Stripe.Checkout.Session) {
+  const m = session.metadata || {};
+
+  // Membership / programme purchases (deposit-hold bookings are handled below).
+  if (m.type === "membership") {
+    // Persist first so the dashboard has the record even if email is skipped.
+    try { await recordMembershipPurchase(session); }
+    catch (cause) { console.error("membership_persist_error", cause); }
+    if (m.email_updates !== "false" && m.email && m.booking_reference) {
+      const isMonthly = m.payment === "monthly";
+      const planLabel = isMonthly && m.months
+        ? `${poundsLabel(Number(m.amount_now||0))}/month × ${m.months}`
+        : `${poundsLabel(Number(m.total||m.amount_now||0))} paid in full`;
+      // Email is best-effort: never fail the webhook (and trigger a retry that
+      // could re-send) because a mail send hiccuped.
+      try {
         await sendMembershipEmails({
           reference:m.booking_reference,
           name:`${m.first_name||""} ${m.last_name||""}`.trim(),
@@ -42,14 +79,16 @@ export async function POST(request:Request) {
           bookVisitUrl:`${appUrl.replace(/\/$/,"")}/#book`,
           accountUrl:`${appUrl.replace(/\/$/,"")}/account`,
         });
-      }
-      return NextResponse.json({received:true});
+      } catch (cause) { console.error("membership_email_error", cause); }
     }
+    return;
+  }
 
-    if (m.email_updates !== "false" && m.email && m.booking_reference) {
-      const paidInFull = m.payment_type === "full";
-      const paidAmount = Number(m.amount || m.deposit || 0);
-      const duration = (m.service_id ? findService(m.service_id)?.duration : undefined) ?? 60;
+  if (m.email_updates !== "false" && m.email && m.booking_reference) {
+    const paidInFull = m.payment_type === "full";
+    const paidAmount = Number(m.amount || m.deposit || 0);
+    const duration = (m.service_id ? findService(m.service_id)?.duration : undefined) ?? 60;
+    try {
       await sendBookingEmails({
         reference:m.booking_reference,
         name:`${m.first_name||""} ${m.last_name||""}`.trim(),
@@ -64,7 +103,6 @@ export async function POST(request:Request) {
         durationMinutes:duration,
         paidInFull,
       });
-    }
+    } catch (cause) { console.error("booking_email_error", cause); }
   }
-  return NextResponse.json({received:true});
 }

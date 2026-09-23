@@ -3,6 +3,12 @@ import { Resend } from "resend";
 import { appUrl } from "@/lib/env";
 import { CALENDLY_CONSULTATION_URL, calendlyConsultationLink } from "@/lib/calendly";
 
+/**
+ * The salon's own inbox — where booking/membership notifications land and where
+ * client replies are routed. Override with BOOKINGS_EMAIL in the environment.
+ */
+export const SALON_EMAIL = process.env.BOOKINGS_EMAIL || "prestigehair0@gmail.com";
+
 export type BookingEmail = {
   reference: string;
   name: string;
@@ -52,9 +58,10 @@ export async function sendBookingEmails(data: BookingEmail) {
   if (!process.env.RESEND_API_KEY) return { skipped: true };
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.EMAIL_FROM || "Prestige Hair Society <onboarding@resend.dev>";
-  const admin = process.env.BOOKINGS_EMAIL;
-  const messages = [{ from, to: data.email, subject: `Booking ${data.reference}: deposit secured`, html: emailHtml(data) }];
-  if (admin) messages.push({ from, to: admin, subject: `New booking request ${data.reference}`, html: emailHtml(data) });
+  const messages = [
+    { from, to: data.email, replyTo: SALON_EMAIL, subject: `Booking ${data.reference}: deposit secured`, html: emailHtml(data) },
+    { from, to: SALON_EMAIL, replyTo: SALON_EMAIL, subject: `New booking request ${data.reference}`, html: emailHtml(data) },
+  ];
   return resend.batch.send(messages);
 }
 
@@ -87,8 +94,9 @@ export async function sendMembershipEmails(data: MembershipEmail) {
   if (!process.env.RESEND_API_KEY) return { skipped: true };
   const resend = new Resend(process.env.RESEND_API_KEY);
   const from = process.env.EMAIL_FROM || "Prestige Hair Society <onboarding@resend.dev>";
-  const admin = process.env.BOOKINGS_EMAIL;
-  const messages = [{ from, to: data.email, subject: `Membership confirmed: ${data.programme} (${data.reference})`, html: membershipHtml(data) }];
-  if (admin) messages.push({ from, to: admin, subject: `New membership ${data.reference}: ${data.programme}`, html: membershipHtml(data) });
+  const messages = [
+    { from, to: data.email, replyTo: SALON_EMAIL, subject: `Membership confirmed: ${data.programme} (${data.reference})`, html: membershipHtml(data) },
+    { from, to: SALON_EMAIL, replyTo: SALON_EMAIL, subject: `New membership ${data.reference}: ${data.programme}`, html: membershipHtml(data) },
+  ];
   return resend.batch.send(messages);
 }

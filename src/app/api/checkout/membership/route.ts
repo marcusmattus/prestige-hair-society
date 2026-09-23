@@ -94,8 +94,10 @@ export async function POST(request: Request) {
               },
             },
           ],
-          // The plan is a fixed number of instalments; the count is carried in
-          // metadata and enforced when the schedule is provisioned server-side.
+          // Stripe can't cap a subscription's length at creation. The instalment
+          // count travels in metadata; the billing webhook (src/lib/stripe/billing.ts)
+          // cancels the subscription after the Nth paid invoice, so the customer
+          // is charged exactly this many times.
           subscription_data: {
             description: `${reference} · ${label} (${tierLabel})`,
             metadata: { ...metadata, installments: String(pricing.monthly.months) },
