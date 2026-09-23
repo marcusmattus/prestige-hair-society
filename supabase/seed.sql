@@ -28,7 +28,7 @@ values (
   'GB',
   51.4640, -0.1660, -- PLACEHOLDER coordinates for Battersea
   null,
-  null,
+  'prestigehair0@gmail.com',
   'Europe/London',
   'GBP',
   60, 120, 24, 24, 15, 10,
@@ -42,6 +42,7 @@ values (
 on conflict (slug) do update set
   name = excluded.name,
   address_line1 = excluded.address_line1,
+  email = excluded.email,
   tagline = excluded.tagline;
 
 -- Opening hours. PLACEHOLDER: verify against the salon's live schedule.

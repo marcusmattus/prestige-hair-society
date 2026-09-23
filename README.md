@@ -113,6 +113,23 @@ The journey is **Discover → Compare → Hair tier → Payment → Purchase →
   the same. Included visits are prepaid, so the client isn't charged again for a
   covered service.
 
+### Instalment plans & billing lifecycle (`src/lib/stripe/billing.ts`)
+
+Monthly plans (£x × N) are Checkout **subscriptions** — Stripe can't cap a
+subscription's length at creation, so the term is enforced by the webhook:
+
+- `invoice.paid` marks the membership `active`, and once **N** paid invoices
+  have been collected (N from subscription metadata) the subscription is
+  **cancelled** — the customer is charged exactly N times. Counting paid
+  invoices (rather than a local tally) keeps it idempotent under webhook retries.
+- `invoice.payment_failed` → `past_due`; `customer.subscription.deleted` →
+  `cancelled` (unless the term already `completed`); `customer.subscription.updated`
+  maps Stripe's status onto the membership.
+
+The webhook is a `switch` that 500s (so Stripe retries) only on handler errors;
+all handlers are idempotent, and confirmation emails are fault-isolated so a mail
+hiccup never triggers a retry that could re-send.
+
 ### Membership account (`/account`, `/sign-in`)
 
 Members sign in passwordlessly (Supabase email OTP at `/sign-in`) to a dashboard
@@ -170,7 +187,7 @@ curl -X POST "$APP_URL/api/crm/distribution" \
 | --- | --- |
 | `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | Stripe checkout + webhook |
 | `RESEND_API_KEY`, `EMAIL_FROM` | Transactional and campaign email |
-| `BOOKINGS_EMAIL` | Internal copy of each booking request |
+| `BOOKINGS_EMAIL` | The salon inbox — booking/membership notifications + reply-to (defaults to prestigehair0@gmail.com) |
 | `CRON_SECRET` | Authenticates `/api/crm/distribution` and cron routes |
 | `NEXT_PUBLIC_APP_URL` | App origin, used for absolute links in emails |
 | `NEXT_PUBLIC_CALENDLY_URL` | Consultation booking link (default: the connected account's 30-min event) |

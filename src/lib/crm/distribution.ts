@@ -2,6 +2,7 @@ import "server-only";
 import { Resend } from "resend";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { emailEnv } from "@/lib/env";
+import { SALON_EMAIL } from "@/lib/email";
 
 /**
  * CRM email distribution — send a marketing broadcast to consenting clients.
@@ -121,7 +122,7 @@ export async function sendCampaign(campaign: Campaign): Promise<DistributionResu
     if (campaign.dryRun) return result;
     for (const email of recipients) {
       const { subject, body } = personalise(campaign, { email });
-      const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, subject, html: wrap(body, campaign.heading, email) });
+      const { error } = await resend.emails.send({ from: EMAIL_FROM, to: email, replyTo: SALON_EMAIL, subject, html: wrap(body, campaign.heading, email) });
       if (error) { result.failed++; result.errors.push({ email, message: error.message }); }
       else result.sent++;
     }
@@ -154,7 +155,7 @@ export async function sendCampaign(campaign: Campaign): Promise<DistributionResu
     let status: "sent" | "failed" = "sent";
     let errorMessage: string | null = null;
     try {
-      const { data, error } = await resend.emails.send({ from: EMAIL_FROM, to: recipient.email, subject, html });
+      const { data, error } = await resend.emails.send({ from: EMAIL_FROM, to: recipient.email, replyTo: SALON_EMAIL, subject, html });
       if (error) throw new Error(error.message);
       providerId = data?.id ?? null;
     } catch (cause) {
